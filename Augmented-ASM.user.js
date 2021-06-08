@@ -8,7 +8,7 @@
 // @run-at       document-end
 // @connect      http://localhost:3000
 // @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
-// @updateURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
+// @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // ==/UserScript==
 
 var aasmversion = "0.8";
