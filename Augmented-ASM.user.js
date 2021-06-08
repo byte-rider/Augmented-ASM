@@ -1,16 +1,17 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      0.7
+// @version      0.9
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
 // @run-at       document-end
 // @connect      http://localhost:3000
+// @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // ==/UserScript==
 
-var aasmversion = "0.7";
+var aasmversion = "0.9";
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
