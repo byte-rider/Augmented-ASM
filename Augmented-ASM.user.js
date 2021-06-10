@@ -1,21 +1,22 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      0.7
+// @version      0.9
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
 // @run-at       document-end
-// @connect      http://localhost:3000
-// @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
+// @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
+// @grant        GM_xmlhttpRequest
+// @connect      samsara-nc
 // ==/UserScript==
 
-var aasmversion = "0.7";
+const aasmversion = "0.9";
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
-var cssControls = `
+const cssControls = `
 @import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
 
 #aasm_controls, #aasm_controls-2 {
@@ -87,7 +88,7 @@ var cssControls = `
 in <style> tags and injected at various locations because Alemba
 use iframes for tabs. !important unfortunately required as Alemba
 make use of them all over the shop */
-var cssReadabilityMode = `
+const cssReadabilityMode = `
 /* Makes fields easier to read */
 .Field[readonly], INPUT[disabled], .Field-Dropdown[disabled]{
   color: #4F0202 !important;
@@ -134,11 +135,13 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     <div id="aasm_controls">
       <div class="aasm-flex-item">
         <button id="btn-hide" class="aasm-button">hide</button>
-        <button id="btn-wasted-space" class="aasm-button">toggle wasted space</button>
-        <button id="btn-navbar-fix" class="aasm-button">toggle navbar fix</button>
-        <button id="btn-readability-mode" class="aasm-button">toggle readability mode</button>
+        <button id="btn-wasted-space" class="aasm-button">wasted space</button>
+        <button id="btn-navbar-fix" class="aasm-button">navbar fix</button>
+        <button id="btn-readability-mode" class="aasm-button">readability mode</button>
         <button id="btn-default" class="aasm-button">default</button>
         <button id="btn-about" class="aasm-button">about</button>
+        <button id="btn-snap-to" class="aasm-button">snap-to</button>
+        <button id="btn-search-to" class="aasm-button">search-to</button>
       </div>
       <div class="aasm-flex-item">
         <input id="slider-contents" class="slider" type="range" min="1.0" max="2.0" step="0.05">
@@ -161,11 +164,11 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     </div>
     `;
 
-    // INJECT CSS
-    var cssControlsElement = document.createElement('style');
-    cssControlsElement.type = "text/css";
-    cssControlsElement.innerHTML = cssControls;
-    (document.head || document.documentElement).appendChild(cssControlsElement);
+    // INJECT AASM-CSS
+    let styleElementAASM = document.createElement('style');
+    styleElementAASM.type = "text/css";
+    styleElementAASM.innerHTML = cssControls;
+    (document.head || document.documentElement).appendChild(styleElementAASM);
 
     // BUTTON HIDE
     document.querySelector("#aasm_controls #btn-hide").addEventListener("click", hide);
@@ -185,7 +188,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
     // BUTTON WASTED SPACE
     document.querySelector("#aasm_controls #btn-wasted-space").addEventListener("click", wastedSpace);
-    var btn_space_on = false;
+    let btn_space_on = false;
     function wastedSpace()
     {
         let e = document.querySelector(".outer-tab-view");
@@ -204,7 +207,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
     // BUTTON NAVBAR FIX
     document.querySelector("#aasm_controls #btn-navbar-fix").addEventListener("click", navbarFix);
-    var btn_nav_on = false;
+    let btn_nav_on = false;
     function navbarFix()
     {
         let e = document.querySelector("#AlembaToolbar .navbar-nav");
@@ -222,7 +225,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     }
 
     // BUTTON READABILITY MODE
-    var btn_read_on = false;
+    let btn_read_on = false;
     document.querySelector("#btn-readability-mode").addEventListener("click", readabilityMode);
     function readabilityMode()
     {
@@ -340,7 +343,7 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
     }
 
     // FIRST SLIDER - (SIZE OF TAB CONTENTS)
-    var slider_contents = document.querySelector("#aasm_controls #slider-contents");
+    let slider_contents = document.querySelector("#aasm_controls #slider-contents");
     slider_contents.oninput = function()
     {
         let tabs = document.querySelectorAll(".tab");
@@ -359,7 +362,7 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
         }
     }
     // SECOND SLIDER - (TAB MAX-WIDTH)
-    var slider_maxwidth = document.querySelector("#aasm_controls #slider-maxwidth");
+    let slider_maxwidth = document.querySelector("#aasm_controls #slider-maxwidth");
     slider_maxwidth.oninput = function()
     {
         let tabs_text = document.querySelectorAll(".tab-label-text");
@@ -371,7 +374,7 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
     }
 
     // THIRD SLIDER - (DESCRIPTION)
-    var slider_description = document.querySelector("#aasm_controls #slider-description");
+    let slider_description = document.querySelector("#aasm_controls #slider-description");
     slider_description.value = 1.3;
     slider_description.oninput = function()
     {
@@ -411,47 +414,125 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
 
     // KEYBOARD SNAP TO
     // STUB
-    /*
-    function keyboard_snap()
+    // currently selects correctly based on crude search
+    document.querySelector("#btn-snap-to").addEventListener("click", () => keyboard_lookup('snap'));
+    document.querySelector("#btn-search-to").addEventListener("click", () => keyboard_lookup('search'));
+    function keyboard_lookup(type)
     {
+        let keypress = prompt(`${type}-to`, "");
         let asm_iframes = document.querySelectorAll(".busy-content");
-        let myNames = asm_iframes[3].contentWindow.document.querySelector("#Main").contentWindow.document.querySelectorAll("#SPAN_IN_OFFICERS_ .e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span");
-    }
+        let iframeIndex = document.querySelector(".tab.active").getAttribute('tabid')-1;
+        let active_iframe = asm_iframes[iframeIndex].contentWindow.document.querySelector("#Main").contentWindow.document;
+        let cssFoo = ".e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span";
+        let cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
+        let names_listed = null;
+
+        if (active_iframe.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;")
+            names_listed = active_iframe.querySelectorAll(`#SPAN_IN_OFFICERS_ ${cssFoo}`);
+
+        if (active_iframe.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;")
+            names_listed = active_iframe.querySelectorAll(`#SPAN_IN_GROUPS_ ${cssFooGroups}`);
+
+        if (active_iframe.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;")
+            names_listed = active_iframe.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
+
+        let simulateClick = function(element) {
+            console.log("trying to click")
+            let box = element.getBoundingClientRect(),
+                coordX = box.left + (box.right - box.left) / 2,
+                coordY = box.top + (box.bottom - box.top) / 2;
+
+            element.dispatchEvent(new MouseEvent("mousedown", {
+                bubbles: true,
+                cancelable: false,
+                clientX: coordX,
+                clientY: coordY,
+                button: 0
+            }));
+            console.log("mousedown")
+            element.dispatchEvent(new MouseEvent("mouseup", {
+                bubbles: true,
+                cancelable: false,
+                clientX: coordX,
+                clientY: coordY,
+                button: 0
+            }));
+            console.log("mouseup")
+            element.dispatchEvent(new MouseEvent("click", {
+                bubbles: true,
+                cancelable: false,
+                clientX: coordX,
+                clientY: coordY,
+                button: 0
+            }));
+            console.log("click")
+        }
+        for (let span of names_listed)
+        {
+            //console.log(`searching span: ${span.innerText} | [${span.innerText.slice(0, keypress.length).toUpperCase()}] =?= [${keypress.toUpperCase()}]`);
+            if (type === 'snap') {
+                if (span.innerText.slice(0, keypress.length).toUpperCase() == keypress.toUpperCase()) {
+                    simulateClick(span);
+                    span.scrollIntoView();
+                    break;
+                }
+            }
+
+            if (type === 'search') {
+                if (span.innerText.toUpperCase().includes(keypress.toUpperCase())) {
+                    simulateClick(span);
+                    span.scrollIntoView();
+                    break;
+                }
+            }
+        }
+    };
+
+
+    // KEYBOARD LISTENER
+    /*
+    document.addEventListener('keypress', event => {
+        console.log(`KEYPRESSED: ${String.fromCharCode(event.keyCode).toUpperCase()}`);
+    })
     */
 
 
-    /*
-    LOG USE OF THIS TOOL:
-    I was going to log some basic analytics by sending the current user and current time (json data) to an http server.
-    Unfortunately ASM has a watchdog script that disallows POST'ings to custom URLs. The exact error reads:
-       "Refused to connect to "localhost:3000": URL is not permitted: URL can not be parsed"
-
-
-    document.querySelector("#aasm_controls #btn-log").addEventListener("click", log_usage);
+    // LOG USE OF THIS TOOL:
+    // Sends timestamp of usage to RESTful API server
     function log_usage() {
+        const APIURL = "http://samsara-nc:8080/wave-hello";
+        let scriptEngine;
+        if (typeof GM_info === "undefined") {
+            scriptEngine = "vanilla Chrome, Opera, scriptish, Safari, or something even rarer)";
+        } else {
+            scriptEngine = GM_info.scriptHandler || "GreaseMonkey";
+        }
         let userData =
             {
-                'name' : OFFICER_NAME.value,
-                'time' : Date.now()
+                'user' : document.getElementById("OFFICER_NAME").value,
+                'time' : Date.now(),
+                'version': aasmversion,
+                'scriptengine': scriptEngine,
             };
-        GM_xmlhttpRequest ({
+
+        //console.log(`userData: ${JSON.stringify(userData)}`);
+        GM_xmlhttpRequest({
             method: 'POST',
-            url: 'localhost:3000',
+            url: APIURL,
             headers: { "Content-Type": "application/json" },
-            data: JSON.stringify(userData)
-        })
-    }
-    */
+            data: JSON.stringify(userData),
+            onload: function(response) {
+                //console.log(response.responseText);
+            }
+        });
+    };
+    log_usage();
 
     function augmented_asm_daemon(){
-        if (btn_read_on) {
-            console.log("Readability Mode: scanning for new tabs and applying");
+        if (btn_read_on)
             readabilityMode.action(true);
-        }
     }
-
     augmented_asm_daemon();
-
     setInterval(function(){
         augmented_asm_daemon()
     }, 10000)

@@ -1,0 +1,25 @@
+<service>
+	<id>augmentedasmanalytics.exe</id>
+	<name>augmented-asm-analytics</name>
+	<description>RESTful API Webserver used for Augmented-ASM analytics</description>
+	<executable>C:\Program Files\nodejs\node.exe</executable>
+	<logmode>rotate</logmode>
+	<argument>--harmony</argument>
+	<argument>C:\Users\edw19b\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>C:\Users\edw19b\Dropbox\dev\augmented-asm\augmented-asm-server\index.js</argument>
+	<argument>--log</argument>
+	<argument>augmented-asm-analytics wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<stoptimeout>30sec</stoptimeout>
+	<workingdirectory>c:\Users\edw19b\Dropbox\dev\augmented-asm</workingdirectory>
+</service>
