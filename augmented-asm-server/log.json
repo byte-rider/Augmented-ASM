@@ -71,6 +71,30 @@
       "time": 1623319570947,
       "version": "0.8",
       "scriptengine": "Tampermonkey"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623322014088,
+      "version": "0.9",
+      "scriptengine": "Tampermonkey"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623323492336,
+      "version": "0.8",
+      "scriptengine": "Violentmonkey"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623324070060,
+      "version": "0.9",
+      "scriptengine": "Violentmonkey"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623324215500,
+      "version": "0.9",
+      "scriptengine": "Tampermonkey"
     }
   ]
 }

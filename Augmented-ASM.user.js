@@ -535,7 +535,7 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
     augmented_asm_daemon();
     setInterval(function(){
         augmented_asm_daemon()
-    }, 10000)
+    }, 5000)
 
 })();
 
