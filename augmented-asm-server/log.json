@@ -19,6 +19,34 @@
       "scriptengine": "Tampermonkey",
       "browserDuckTyping": "Firefox",
       "browserUserString": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623374308221,
+      "version": "0.9",
+      "scriptengine": "Violentmonkey"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623374409599,
+      "version": "0.9",
+      "scriptengine": "Violentmonkey"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623374810782,
+      "version": "0.9",
+      "scriptengine": "Violentmonkey",
+      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36",
+      "browser-ducktyping": "Blink"
+    },
+    {
+      "user": "Edwards, George",
+      "time": 1623374877133,
+      "version": "0.9",
+      "scriptengine": "MeddleMonkey",
+      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41",
+      "browser-ducktyping": "Blink"
     }
   ]
 }

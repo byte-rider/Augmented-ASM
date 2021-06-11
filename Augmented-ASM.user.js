@@ -488,15 +488,6 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
         }
     };
 
-
-    // KEYBOARD LISTENER
-    /*
-    document.addEventListener('keypress', event => {
-        console.log(`KEYPRESSED: ${String.fromCharCode(event.keyCode).toUpperCase()}`);
-    })
-    */
-
-
     // LOG USE OF THIS TOOL:
     // Sends timestamp of usage to RESTful API server
     function log_usage() {
@@ -510,30 +501,6 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
             scriptEngine = GM_info.scriptHandler || "GreaseMonkey";
         }
 
-
-        // Identify browser with ducktyping
-        // https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
-        let browserDuckTyping;
-
-        let isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-        let isFirefox = typeof InstallTrigger !== 'undefined';
-        let isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && window['safari'].pushNotification));
-        let isIE = /*@cc_on!@*/false || !!document.documentMode;
-        let isEdge = !isIE && !!window.StyleMedia;
-        let isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
-        let isEdgeChromium = isChrome && (navigator.userAgent.indexOf("Edg") != -1);
-        let isBlink = (isChrome || isOpera) && !!window.CSS;
-
-        (isOpera) ? browserDuckTyping = "Opera" : null;
-        (isFirefox) ? browserDuckTyping = "Firefox" : null;
-        (isSafari) ? browserDuckTyping = "Safari" : null;
-        (isIE) ? browserDuckTyping = "Internet Explorer" : null;
-        (isEdge) ? browserDuckTyping = "Edge" : null;
-        (isChrome) ? browserDuckTyping = "Chrome" : null;
-        (isEdgeChromium) ? browserDuckTyping = "EdgeChromium" : null;
-        (isBlink) ? browserDuckTyping = "Blink" : null;
-
-
         // Construct payload
         let payload =
             {
@@ -542,7 +509,6 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
                 'version': aasmversion,
                 'scriptengine': scriptEngine,
                 'userstring': navigator.userAgent,
-                'browser-ducktyping': browserDuckTyping,
             };
 
         GM_xmlhttpRequest({
