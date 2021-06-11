@@ -501,26 +501,55 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
     // Sends timestamp of usage to RESTful API server
     function log_usage() {
         const APIURL = "http://samsara-nc:8080/wave-hello";
+
+        // Identify ScriptEngine
         let scriptEngine;
         if (typeof GM_info === "undefined") {
             scriptEngine = "vanilla Chrome, Opera, scriptish, Safari, or something even rarer)";
         } else {
             scriptEngine = GM_info.scriptHandler || "GreaseMonkey";
         }
-        let userData =
+
+
+        // Identify browser with ducktyping
+        // https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+        let browserDuckTyping;
+
+        let isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+        let isFirefox = typeof InstallTrigger !== 'undefined';
+        let isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && window['safari'].pushNotification));
+        let isIE = /*@cc_on!@*/false || !!document.documentMode;
+        let isEdge = !isIE && !!window.StyleMedia;
+        let isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+        let isEdgeChromium = isChrome && (navigator.userAgent.indexOf("Edg") != -1);
+        let isBlink = (isChrome || isOpera) && !!window.CSS;
+
+        (isOpera) ? browserDuckTyping = "Opera" : null;
+        (isFirefox) ? browserDuckTyping = "Firefox" : null;
+        (isSafari) ? browserDuckTyping = "Safari" : null;
+        (isIE) ? browserDuckTyping = "Internet Explorer" : null;
+        (isEdge) ? browserDuckTyping = "Edge" : null;
+        (isChrome) ? browserDuckTyping = "Chrome" : null;
+        (isEdgeChromium) ? browserDuckTyping = "EdgeChromium" : null;
+        (isBlink) ? browserDuckTyping = "Blink" : null;
+
+
+        // Construct payload
+        let payload =
             {
                 'user' : document.getElementById("OFFICER_NAME").value,
                 'time' : Date.now(),
                 'version': aasmversion,
                 'scriptengine': scriptEngine,
+                'userstring': navigator.userAgent,
+                'browser-ducktyping': browserDuckTyping,
             };
 
-        //console.log(`userData: ${JSON.stringify(userData)}`);
         GM_xmlhttpRequest({
             method: 'POST',
             url: APIURL,
             headers: { "Content-Type": "application/json" },
-            data: JSON.stringify(userData),
+            data: JSON.stringify(payload),
             onload: function(response) {
                 //console.log(response.responseText);
             }
