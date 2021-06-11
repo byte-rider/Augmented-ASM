@@ -1,4 +1,5 @@
-const filename = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log.json";
+const filenameLog = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log.json";
+const filenameLogUnique = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log-unique.json";
 const fs = require('fs');
 const express = require('express');
 const app = express();
@@ -9,13 +10,19 @@ app.listen(PORT, () => console.log(`running on port ${PORT}`))
 
 app.post('/wave-hello', (req, res) => {
     // load
-    let logData = JSON.parse(fs.readFileSync(filename));
+    let logData = JSON.parse(fs.readFileSync(filenameLog));
+    let logDataUnique = JSON.parse(fs.readFileSync(filenameLogUnique));
     
-    // append
+    // append entry
     logData.users.push(req.body);
+
+    // append unique entry
+    if (!logDataUnique.users.find(e => e.user === req.body.user))
+        logDataUnique.users.push(req.body);
     
     // write
-    fs.writeFileSync(filename, JSON.stringify(logData, null, 2))
+    fs.writeFileSync(filenameLog, JSON.stringify(logData, null, 2))
+    fs.writeFileSync(filenameLogUnique, JSON.stringify(logDataUnique, null, 2))
 
     // send response
     res.send( `Augmented-ASM: 👌` );
@@ -23,7 +30,7 @@ app.post('/wave-hello', (req, res) => {
 
 app.get('/wave-hello', (req, res) => {
     // send response
-    res.send( `Hello cheeky monkey. I commend your exploration 🍻` );
+    res.send( `I commend your exploration 🍻` );
 })
 
 app.get('/', (req, res) => {
@@ -31,3 +38,7 @@ app.get('/', (req, res) => {
     res.send( `😘` );
 })
 
+app.get('/:other', (req, res) => {
+    // send response
+    res.send( `what's this now? ☝️` );
+})

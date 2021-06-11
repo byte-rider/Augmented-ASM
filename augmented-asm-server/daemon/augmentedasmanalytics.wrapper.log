@@ -64,3 +64,83 @@
 2021-06-11 11:15:02 - Finished augmentedasmanalytics.exe
 2021-06-11 11:15:03 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\edw19b\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file C:\Users\edw19b\Dropbox\dev\augmented-asm\augmented-asm-server\index.js --log "augmented-asm-analytics wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
 2021-06-11 11:15:03 - Started 30036
+2021-06-11 11:41:15 - Stopping augmentedasmanalytics.exe
+2021-06-11 11:41:15 - ProcessKill 30036
+2021-06-11 11:41:16 - Found child process: 17304 Name: conhost.exe
+2021-06-11 11:41:16 - Found child process: 21744 Name: node.exe
+2021-06-11 11:41:16 - Stopping process 17304
+2021-06-11 11:41:16 - Send SIGINT 17304
+2021-06-11 11:41:16 - SIGINT to 17304 failed - Killing as fallback
+2021-06-11 11:41:16 - Stopping process 21744
+2021-06-11 11:41:16 - Send SIGINT 21744
+2021-06-11 11:41:16 - SIGINT to 21744 failed - Killing as fallback
+2021-06-11 11:41:16 - Stopping process 30036
+2021-06-11 11:41:16 - Send SIGINT 30036
+2021-06-11 11:41:16 - SIGINT to 30036 failed - Killing as fallback
+2021-06-11 11:41:16 - Finished augmentedasmanalytics.exe
+2021-06-11 11:41:17 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\edw19b\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file C:\Users\edw19b\Dropbox\dev\augmented-asm\augmented-asm-server\index.js --log "augmented-asm-analytics wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2021-06-11 11:41:17 - Started 22376
+2021-06-11 11:48:30 - Stopping augmentedasmanalytics.exe
+2021-06-11 11:48:30 - ProcessKill 22376
+2021-06-11 11:48:30 - Found child process: 2712 Name: conhost.exe
+2021-06-11 11:48:30 - Found child process: 29752 Name: node.exe
+2021-06-11 11:48:30 - Stopping process 2712
+2021-06-11 11:48:30 - Send SIGINT 2712
+2021-06-11 11:48:30 - SIGINT to 2712 failed - Killing as fallback
+2021-06-11 11:48:31 - Stopping process 29752
+2021-06-11 11:48:31 - Send SIGINT 29752
+2021-06-11 11:48:31 - SIGINT to 29752 failed - Killing as fallback
+2021-06-11 11:48:31 - Stopping process 22376
+2021-06-11 11:48:31 - Send SIGINT 22376
+2021-06-11 11:48:31 - SIGINT to 22376 failed - Killing as fallback
+2021-06-11 11:48:31 - Finished augmentedasmanalytics.exe
+2021-06-11 11:48:31 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\edw19b\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file C:\Users\edw19b\Dropbox\dev\augmented-asm\augmented-asm-server\index.js --log "augmented-asm-analytics wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2021-06-11 11:48:32 - Started 17056
+2021-06-11 11:49:18 - Stopping augmentedasmanalytics.exe
+2021-06-11 11:49:18 - ProcessKill 17056
+2021-06-11 11:49:18 - Found child process: 18400 Name: conhost.exe
+2021-06-11 11:49:18 - Found child process: 9804 Name: node.exe
+2021-06-11 11:49:18 - Stopping process 18400
+2021-06-11 11:49:18 - Send SIGINT 18400
+2021-06-11 11:49:18 - SIGINT to 18400 failed - Killing as fallback
+2021-06-11 11:49:18 - Stopping process 9804
+2021-06-11 11:49:18 - Send SIGINT 9804
+2021-06-11 11:49:18 - SIGINT to 9804 failed - Killing as fallback
+2021-06-11 11:49:18 - Stopping process 17056
+2021-06-11 11:49:18 - Send SIGINT 17056
+2021-06-11 11:49:18 - SIGINT to 17056 failed - Killing as fallback
+2021-06-11 11:49:18 - Finished augmentedasmanalytics.exe
+2021-06-11 11:49:19 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\edw19b\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file C:\Users\edw19b\Dropbox\dev\augmented-asm\augmented-asm-server\index.js --log "augmented-asm-analytics wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2021-06-11 11:49:20 - Started 25684
+2021-06-11 15:17:19 - Stopping augmentedasmanalytics.exe
+2021-06-11 15:17:19 - ProcessKill 25684
+2021-06-11 15:17:19 - Found child process: 6832 Name: conhost.exe
+2021-06-11 15:17:19 - Found child process: 24856 Name: node.exe
+2021-06-11 15:17:20 - Stopping process 6832
+2021-06-11 15:17:20 - Send SIGINT 6832
+2021-06-11 15:17:20 - SIGINT to 6832 failed - Killing as fallback
+2021-06-11 15:17:20 - Stopping process 24856
+2021-06-11 15:17:20 - Send SIGINT 24856
+2021-06-11 15:17:20 - SIGINT to 24856 failed - Killing as fallback
+2021-06-11 15:17:20 - Stopping process 25684
+2021-06-11 15:17:20 - Send SIGINT 25684
+2021-06-11 15:17:20 - SIGINT to 25684 failed - Killing as fallback
+2021-06-11 15:17:20 - Finished augmentedasmanalytics.exe
+2021-06-11 15:17:21 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\edw19b\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file C:\Users\edw19b\Dropbox\dev\augmented-asm\augmented-asm-server\index.js --log "augmented-asm-analytics wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2021-06-11 15:17:21 - Started 11308
+2021-06-11 15:52:28 - Stopping augmentedasmanalytics.exe
+2021-06-11 15:52:28 - ProcessKill 11308
+2021-06-11 15:52:28 - Found child process: 5184 Name: conhost.exe
+2021-06-11 15:52:28 - Found child process: 18344 Name: node.exe
+2021-06-11 15:52:28 - Stopping process 5184
+2021-06-11 15:52:28 - Send SIGINT 5184
+2021-06-11 15:52:28 - SIGINT to 5184 failed - Killing as fallback
+2021-06-11 15:52:28 - Stopping process 18344
+2021-06-11 15:52:28 - Send SIGINT 18344
+2021-06-11 15:52:28 - SIGINT to 18344 failed - Killing as fallback
+2021-06-11 15:52:28 - Stopping process 11308
+2021-06-11 15:52:28 - Send SIGINT 11308
+2021-06-11 15:52:28 - SIGINT to 11308 failed - Killing as fallback
+2021-06-11 15:52:28 - Finished augmentedasmanalytics.exe
+2021-06-11 15:52:29 - Starting C:\Program Files\nodejs\node.exe  --harmony C:\Users\edw19b\AppData\Roaming\npm\node_modules\qckwinsvc\node_modules\node-windows\lib\wrapper.js --file C:\Users\edw19b\Dropbox\dev\augmented-asm\augmented-asm-server\index.js --log "augmented-asm-analytics wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2021-06-11 15:52:29 - Started 26944

@@ -517,13 +517,14 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
             headers: { "Content-Type": "application/json" },
             data: JSON.stringify(payload),
             onload: function(response) {
-                //console.log(response.responseText);
+                console.log(response.responseText);
             }
         });
     };
     log_usage();
 
-    function augmented_asm_daemon(){
+    function augmented_asm_daemon()
+    {
         if (btn_read_on)
             readabilityMode.action(true);
     }

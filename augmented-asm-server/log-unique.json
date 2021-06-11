@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "user": "Edwards, George",
+      "time": 1623377091607,
+      "version": "0.9",
+      "scriptengine": "Tampermonkey",
+      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
+    },
+    {
+      "user": "Simpson, Mark",
+      "time": 1623383714683,
+      "version": "0.9",
+      "scriptengine": "Tampermonkey"
+    },
+    {
+      "user": "Hansen, Joel",
+      "time": 1623384277609,
+      "version": "0.9",
+      "scriptengine": "Violentmonkey"
+    }
+  ]
+}
