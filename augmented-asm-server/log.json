@@ -2,99 +2,23 @@
   "users": [
     {
       "user": "Edwards, George",
-      "time": 1623294722893,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623295012927,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623295024484,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623297410923,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623298812620,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623299993084,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623301808690,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623302398965,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623302500016,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623319327593,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623319396378,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623319570947,
-      "version": "0.8",
-      "scriptengine": "Tampermonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623322014088,
+      "time": 1623367481217,
       "version": "0.9",
-      "scriptengine": "Tampermonkey"
+      "scriptengine": "MeddleMonkey"
     },
     {
-      "user": "Edwards, George",
-      "time": 1623323492336,
-      "version": "0.8",
-      "scriptengine": "Violentmonkey"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623324070060,
+      "user": "Hansen, Joel",
+      "time": 1623370874841,
       "version": "0.9",
       "scriptengine": "Violentmonkey"
     },
     {
       "user": "Edwards, George",
-      "time": 1623324215500,
+      "time": 1623373757409,
       "version": "0.9",
-      "scriptengine": "Tampermonkey"
+      "scriptengine": "Tampermonkey",
+      "browserDuckTyping": "Firefox",
+      "browserUserString": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0"
     }
   ]
 }

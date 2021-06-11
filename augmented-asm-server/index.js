@@ -18,5 +18,16 @@ app.post('/wave-hello', (req, res) => {
     fs.writeFileSync(filename, JSON.stringify(logData, null, 2))
 
     // send response
-    res.send( {received: "👌"} );
+    res.send( `Augmented-ASM: 👌` );
 })
+
+app.get('/wave-hello', (req, res) => {
+    // send response
+    res.send( `Hello cheeky monkey. I commend your exploration 🍻` );
+})
+
+app.get('/', (req, res) => {
+    // send response
+    res.send( `😘` );
+})
+
