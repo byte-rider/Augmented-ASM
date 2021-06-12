@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.0
+// @version      1.1
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -12,7 +12,7 @@
 // @connect      samsara-nc
 // ==/UserScript==
 
-const aasmversion = "1.0";
+const aasmversion = "1.1";
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -138,8 +138,6 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         <button id="btn-augment" class="aasm-button">augment</button>
         <button id="btn-default" class="aasm-button">default</button>
         <button id="btn-about" class="aasm-button">about</button>
-        <button id="btn-snap-to" class="aasm-button">snap-to</button>
-        <button id="btn-search-to" class="aasm-button">search-to</button>
       </div>
       <div class="aasm-flex-item">
         <input id="slider-contents" class="slider" type="range" min="1.0" max="2.0" step="0.05">
@@ -407,22 +405,23 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
     function keyboard_lookup(type)
     {
         let keypress = prompt(`${type}-to`, "");
-        let asm_iframes = document.querySelectorAll(".busy-content");
-        let iframeIndex = document.querySelector(".tab.active").getAttribute('tabid');
-        iframeIndex--;
-        let active_iframe = asm_iframes[iframeIndex].contentWindow.document.querySelector("#Main").contentWindow.document;
+        let activeDocument = document.activeElement.contentWindow.document.activeElement.contentWindow.document
+        //let asm_iframes = document.querySelectorAll(".busy-content");
+        //let iframeIndex = document.querySelector(".tab.active").getAttribute('tabid');
+        //iframeIndex--;
+        //let activeDocument = asm_iframes[iframeIndex].contentWindow.document.querySelector("#Main").contentWindow.document;
         let cssFoo = ".e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span";
         let cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
         let names_listed = null;
 
-        if (active_iframe.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;")
-            names_listed = active_iframe.querySelectorAll(`#SPAN_IN_OFFICERS_ ${cssFoo}`);
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;")
+            names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_ ${cssFoo}`);
 
-        if (active_iframe.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;")
-            names_listed = active_iframe.querySelectorAll(`#SPAN_IN_GROUPS_ ${cssFooGroups}`);
+        if (activeDocument.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;")
+            names_listed = activeDocument.querySelectorAll(`#SPAN_IN_GROUPS_ ${cssFooGroups}`);
 
-        if (active_iframe.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;")
-            names_listed = active_iframe.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;")
+            names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
 
         let simulateClick = function(element) {
             console.log("trying to click")
@@ -541,17 +540,47 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
 
     function augmented_asm_daemon()
     {
-        if (augment_flag) {
+        if (!augment_flag)
+            return;
 
-            // apply readability mode for any new tabs.
-            readabilityMode.action(true);
+        // apply readability mode for any new tabs.
+        readabilityMode.action(true);
 
-            // apply enable pasting into emails.
-            try {
-                if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') != -1)
-                    document.activeElement.contentWindow.document.activeElement.onpaste = aasmPaste;
+        // apply enable pasting into emails.
+        try {
+            if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') != -1)
+                document.activeElement.contentWindow.document.activeElement.onpaste = aasmPaste;
+        }
+        catch { null; }
+
+        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#SPAN_IN_OFFICERS_")) {
+            // Insert buttons if not already there
+            if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-searchto")) {
+                // flex container
+                let wrapper = document.createElement("div");
+                wrapper.setAttribute("style", "display: flex;");
+
+                // create buttons
+                let btn1 = document.createElement("div");
+                btn1.setAttribute("id", "aasm-snapto");
+                btn1.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
+                btn1.innerHTML = '🔎 snap';
+                wrapper.appendChild(btn1);
+
+                let btn2 = document.createElement("div");
+                btn2.setAttribute("id", "aasm-searchto");
+                btn2.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
+                btn2.innerHTML = '🔎 search';
+                wrapper.appendChild(btn2);
+
+                // insert into dom
+                let div = document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector('table tr td div');
+                div.parentNode.insertBefore(wrapper, div.nextSibling);
+
+                // add event listeners
+                btn1.addEventListener("click", () => keyboard_lookup('snap'));
+                btn2.addEventListener("click", () => keyboard_lookup('search'));
             }
-            catch { null; }
         }
     }
 
