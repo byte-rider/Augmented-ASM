@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      0.9
+// @version      1.0
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -12,7 +12,7 @@
 // @connect      samsara-nc
 // ==/UserScript==
 
-const aasmversion = "0.9";
+const aasmversion = "1.0";
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -135,9 +135,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     <div id="aasm_controls">
       <div class="aasm-flex-item">
         <button id="btn-hide" class="aasm-button">hide</button>
-        <button id="btn-wasted-space" class="aasm-button">wasted space</button>
-        <button id="btn-navbar-fix" class="aasm-button">navbar fix</button>
-        <button id="btn-readability-mode" class="aasm-button">readability mode</button>
+        <button id="btn-augment" class="aasm-button">augment</button>
         <button id="btn-default" class="aasm-button">default</button>
         <button id="btn-about" class="aasm-button">about</button>
         <button id="btn-snap-to" class="aasm-button">snap-to</button>
@@ -160,6 +158,8 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     <div id="aasm_controls-2">
       <div class="aasm-flex-item">
         <button id="btn-show" class="aasm-button">show</button>
+        <button id="btn-snap-to-2" class="aasm-button">snap-to</button>
+        <button id="btn-search-to-2" class="aasm-button">search-to</button>
       </div>
     </div>
     `;
@@ -186,51 +186,23 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         document.querySelector("#aasm_controls-2").style.display = "none";
     }
 
-    // BUTTON WASTED SPACE
-    document.querySelector("#aasm_controls #btn-wasted-space").addEventListener("click", wastedSpace);
-    let btn_space_on = false;
-    function wastedSpace()
+    // WASTED SPACE
+    function wastedSpace(toggleOn)
     {
         let e = document.querySelector(".outer-tab-view");
-        let btn = document.querySelector("#btn-wasted-space");
-        if (btn_space_on)
-        {
-            e.style.marginLeft = "20px"; // default margin was 20px
-            btn.classList.remove("aasm-button-active");
-            btn_space_on = false;
-        } else {
-            e.style.marginLeft = "0rem";
-            btn.classList.add("aasm-button-active");
-            btn_space_on = true;
-        }
+        (toggleOn) ? e.style.marginLeft = "0rem" : e.style.marginLeft = "20px";
     }
 
-    // BUTTON NAVBAR FIX
-    document.querySelector("#aasm_controls #btn-navbar-fix").addEventListener("click", navbarFix);
-    let btn_nav_on = false;
-    function navbarFix()
+    // NAVBAR FIX
+    function navbarFix(toggleOn)
     {
         let e = document.querySelector("#AlembaToolbar .navbar-nav");
-        let btn = document.querySelector("#btn-navbar-fix");
-        if (btn_nav_on)
-        {
-            e.style.minWidth = "410px"; // default was 410px
-            btn.classList.remove("aasm-button-active");
-            btn_nav_on = false;
-        } else {
-            e.style.minWidth = "570px";
-            btn.classList.add("aasm-button-active");
-            btn_nav_on = true;
-        }
+        (toggleOn) ? e.style.minWidth = "570px" : e.style.minWidth = "410px";
     }
 
-    // BUTTON READABILITY MODE
-    let btn_read_on = false;
-    document.querySelector("#btn-readability-mode").addEventListener("click", readabilityMode);
-    function readabilityMode()
+    // READABILITY MODE
+    function readabilityMode(toggleOn)
     {
-        let btn = document.querySelector("#btn-readability-mode");
-
         function action(bool_apply_or_remove)
         {
             // ASM deliver tabbed content through iFrames. We must iterate through them all
@@ -264,7 +236,6 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
                     catch(err) {
                         // nothing to do
                     }
-
                 }
             }
 
@@ -285,16 +256,34 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             }
         }
         readabilityMode.action = action;
-        if (btn_read_on) {
-            btn.classList.remove("aasm-button-active"); //styles the button to "off"
-            action(false);
-            btn_read_on = false;
-        } else if (!btn_read_on) {
-            btn.classList.add("aasm-button-active"); // styles the button to "on"
-            action(true);
-            btn_read_on = true;
+        (toggleOn) ? action(true) : action(false);
+
+    }
+
+    // BUTTON AUGMENT
+    let augment_flag = false;
+    document.querySelector("#btn-augment").addEventListener("click", augment);
+    function augment() {
+
+        // turn augments on
+        if (!augment_flag) {
+            wastedSpace(true);
+            navbarFix(true);
+            readabilityMode(true);
         }
 
+        // turn augments off
+        if (augment_flag) {
+            wastedSpace(false);
+            navbarFix(false);
+            readabilityMode(false);
+        }
+
+        // change button accordingly
+        (augment_flag) ? document.querySelector("#btn-augment").classList.remove("aasm-button-active") : document.querySelector("#btn-augment").classList.add("aasm-button-active");
+
+        // toggle flag
+        augment_flag = ~augment_flag;
     }
 
     // BUTTON RESET TO DEFAULT
@@ -329,9 +318,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
 
         // toggle buttons if they're on.
-        (btn_space_on) ? wastedSpace() : console.log(`[wasted space] already off`);
-        (btn_nav_on) ? navbarFix() : console.log(`[navbar fix] already off`);
-        (btn_read_on) ? readabilityMode() : console.log(`[readability mode] already off`);
+        (augment_flag) ? augment() : null;
     }
 
     // BUTTON ABOUT
@@ -413,15 +400,16 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
     }
 
     // KEYBOARD SNAP TO
-    // STUB
-    // currently selects correctly based on crude search
     document.querySelector("#btn-snap-to").addEventListener("click", () => keyboard_lookup('snap'));
+    document.querySelector("#btn-snap-to-2").addEventListener("click", () => keyboard_lookup('snap'));
     document.querySelector("#btn-search-to").addEventListener("click", () => keyboard_lookup('search'));
+    document.querySelector("#btn-search-to-2").addEventListener("click", () => keyboard_lookup('search'));
     function keyboard_lookup(type)
     {
         let keypress = prompt(`${type}-to`, "");
         let asm_iframes = document.querySelectorAll(".busy-content");
-        let iframeIndex = document.querySelector(".tab.active").getAttribute('tabid')-1;
+        let iframeIndex = document.querySelector(".tab.active").getAttribute('tabid');
+        iframeIndex--;
         let active_iframe = asm_iframes[iframeIndex].contentWindow.document.querySelector("#Main").contentWindow.document;
         let cssFoo = ".e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span";
         let cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
@@ -488,6 +476,34 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
         }
     };
 
+    // PASTE IMG INTO EMAIL
+    // "onpaste" Function (daemon apply's this function to an event listener)
+    function aasmPaste(pasteEvent) {
+        let item = pasteEvent.clipboardData.items[0];
+
+        if (item.type.indexOf("image") === 0) {
+            let blob = item.getAsFile();
+
+            let reader = new FileReader();
+            reader.onload = function(event)	{
+
+                // grab text area
+                let p = document.activeElement.contentWindow.document.activeElement.querySelector("p table p table").parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
+
+                // create image
+                let img = document.createElement("img");
+                img.setAttribute("id", "PastedIMG");
+
+                // insert after element.
+                p.parentNode.insertBefore(img, p.nextSibling);
+
+                // now paste
+                document.activeElement.contentWindow.document.activeElement.querySelector("#PastedIMG").src = event.target.result;
+            };
+            reader.readAsDataURL(blob);
+        }
+    };
+
     // LOG USE OF THIS TOOL:
     // Sends timestamp of usage to RESTful API server
     function log_usage() {
@@ -496,7 +512,7 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
         // Identify ScriptEngine
         let scriptEngine;
         if (typeof GM_info === "undefined") {
-            scriptEngine = "vanilla Chrome, Opera, scriptish, Safari, or something even rarer)";
+            scriptEngine = "Unknown, could be scriptish or something even rarer";
         } else {
             scriptEngine = GM_info.scriptHandler || "GreaseMonkey";
         }
@@ -525,13 +541,25 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
 
     function augmented_asm_daemon()
     {
-        if (btn_read_on)
+        if (augment_flag) {
+
+            // apply readability mode for any new tabs.
             readabilityMode.action(true);
+
+            // apply enable pasting into emails.
+            try {
+                if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') != -1)
+                    document.activeElement.contentWindow.document.activeElement.onpaste = aasmPaste;
+            }
+            catch { null; }
+        }
     }
+
     augmented_asm_daemon();
     setInterval(function(){
         augmented_asm_daemon()
-    }, 5000)
+    }, 500)
+
 
 })();
 
