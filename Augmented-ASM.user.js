@@ -32,7 +32,7 @@ const cssControls = `
 }
 
 .aasm-button {
-	// padding: 0.35rem 1.2rem;
+	padding: 0.35rem 2rem 0.2rem 2rem;
 	margin-right: 1rem;
 	border-radius: 0.4rem;
 	text-align: center;
@@ -40,7 +40,6 @@ const cssControls = `
 	font-family: "Lucida Console", "Courier New", monospace;
 	font-size: 1.2rem;
 	text-transform: uppercase;
-    // box-shadow: 0 0 0 1px gray;
     border: 2px solid grey;
     background: none;
 }
@@ -61,7 +60,7 @@ const cssControls = `
 }
 
 #aasm_controls .slider {
-  width: 20rem;
+  width: 27rem;
 }
 
 #aasm_controls .slider-label {
@@ -75,8 +74,8 @@ const cssControls = `
 
 #aasm_controls .watermark {
     position: absolute;
-    left: 40rem;
-    top: 4rem;
+    left: 44rem;
+    top: 3rem;
     font-size: 3.5rem;
     opacity: 0.2;
     font-family: 'Caveat', cursive;
@@ -156,8 +155,6 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     <div id="aasm_controls-2">
       <div class="aasm-flex-item">
         <button id="btn-show" class="aasm-button">show</button>
-        <button id="btn-snap-to-2" class="aasm-button">snap-to</button>
-        <button id="btn-search-to-2" class="aasm-button">search-to</button>
       </div>
     </div>
     `;
@@ -398,18 +395,10 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
     }
 
     // KEYBOARD SNAP TO
-    document.querySelector("#btn-snap-to").addEventListener("click", () => keyboard_lookup('snap'));
-    document.querySelector("#btn-snap-to-2").addEventListener("click", () => keyboard_lookup('snap'));
-    document.querySelector("#btn-search-to").addEventListener("click", () => keyboard_lookup('search'));
-    document.querySelector("#btn-search-to-2").addEventListener("click", () => keyboard_lookup('search'));
     function keyboard_lookup(type)
     {
         let keypress = prompt(`${type}-to`, "");
         let activeDocument = document.activeElement.contentWindow.document.activeElement.contentWindow.document
-        //let asm_iframes = document.querySelectorAll(".busy-content");
-        //let iframeIndex = document.querySelector(".tab.active").getAttribute('tabid');
-        //iframeIndex--;
-        //let activeDocument = asm_iframes[iframeIndex].contentWindow.document.querySelector("#Main").contentWindow.document;
         let cssFoo = ".e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span";
         let cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
         let names_listed = null;
@@ -553,24 +542,26 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
         }
         catch { null; }
 
+        // apply snap and search buttons
         if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#SPAN_IN_OFFICERS_")) {
             // Insert buttons if not already there
             if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-searchto")) {
-                // flex container
-                let wrapper = document.createElement("div");
-                wrapper.setAttribute("style", "display: flex;");
 
                 // create buttons
                 let btn1 = document.createElement("div");
                 btn1.setAttribute("id", "aasm-snapto");
                 btn1.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
                 btn1.innerHTML = '🔎 snap';
-                wrapper.appendChild(btn1);
 
                 let btn2 = document.createElement("div");
                 btn2.setAttribute("id", "aasm-searchto");
                 btn2.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
                 btn2.innerHTML = '🔎 search';
+
+                // flex container
+                let wrapper = document.createElement("div");
+                wrapper.setAttribute("style", "display: flex;");
+                wrapper.appendChild(btn1);
                 wrapper.appendChild(btn2);
 
                 // insert into dom
