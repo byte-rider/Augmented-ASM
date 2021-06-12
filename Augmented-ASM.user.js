@@ -90,8 +90,8 @@ make use of them all over the shop */
 const cssReadabilityMode = `
 /* Makes fields easier to read */
 .Field[readonly], INPUT[disabled], .Field-Dropdown[disabled]{
-  color: #4F0202 !important;
-  border-color: #4F0202 !important;
+  color: black !important;
+  border-color: black !important;
 }
 
 input.form-control[disabled] {
@@ -103,7 +103,7 @@ div[readonlyisreadonly] > label {
 }
 
 input.readonly, .search-control .search-control-input.readonly, .tiered-list-container .input-group > input.form-control, input[id*="TELEPHONE"][readonly] + a.telephon {
-  border-color: #4F0202 !important;
+  border-color: black !important;
 }
 
 
