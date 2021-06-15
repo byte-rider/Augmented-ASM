@@ -1,12 +1,6 @@
 {
   "users": [
     {
-      "user": "Edwards, George",
-      "time": 1623367481217,
-      "version": "0.9",
-      "scriptengine": "MeddleMonkey"
-    },
-    {
       "user": "Hansen, Joel",
       "time": 1623370874841,
       "version": "0.9",
@@ -23,7 +17,8 @@
       "user": "Simpson, Mark",
       "time": 1623383714683,
       "version": "0.9",
-      "scriptengine": "Tampermonkey"
+      "scriptengine": "Tampermonkey",
+      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
     },
     {
       "user": "Hansen, Joel",
@@ -32,172 +27,13 @@
       "scriptengine": "Violentmonkey"
     },
     {
-      "user": "Edwards, George",
-      "time": 1623389846069,
-      "version": "0.9",
-      "scriptengine": "MeddleMonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623392364474,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623395008190,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623475655499,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623475655976,
-      "version": "0.9",
-      "scriptengine": "MeddleMonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623475687038,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623476446338,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623484868203,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623485874857,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623485906153,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623485969199,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623486223877,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623486622656,
-      "version": "0.9",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623488449854,
-      "version": "1.0",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623489206453,
-      "version": "1.0",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623489248929,
-      "version": "1.0",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623489397444,
-      "version": "1.0",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623491745448,
-      "version": "1.0",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623493641397,
-      "version": "1.0",
-      "scriptengine": "Tampermonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623495369088,
-      "version": "0.9",
-      "scriptengine": "MeddleMonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623496282031,
+      "user": "Hansen, Joel",
+      "time": 1623728108122,
       "version": "1.1",
-      "scriptengine": "MeddleMonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623496957468,
-      "version": "1.1",
-      "scriptengine": "MeddleMonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623498858485,
-      "version": "1.1",
-      "scriptengine": "MeddleMonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
-    },
-    {
-      "user": "Edwards, George",
-      "time": 1623499890836,
-      "version": "1.1",
-      "scriptengine": "MeddleMonkey",
-      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36 Edg/91.0.864.41"
+      "scriptengine": "Violentmonkey",
+      "userstring": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36",
+      "ip": "::ffff:140.253.50.30",
+      "hostname": "lookup error: ENOTFOUND"
     }
   ]
 }
