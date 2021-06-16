@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.2
+// @version      1.3
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -11,9 +11,9 @@
 // @grant        GM_xmlhttpRequest
 // @connect      samsara-nc
 // ==/UserScript==
-//debugger;
+debugger;
 
-const AASMVERSION = 1.2;
+const AASMVERSION = 1.3;
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -132,12 +132,6 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 (function() {
     'use strict';
 
-    /*
-    // add animation library (https://animate.style/)
-    const ANIMATE = GM_getResourceText("IMPORTED_CSS");
-    GM_addStyle(ANIMATE);
-    */
-
     // HTML SCAFFOLDING - CONTROLS
     // NOTE: div's where one might put <label> or <span>
     // this is to avoid unwanted CSS
@@ -226,6 +220,9 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         // toggle flag
         augment_flag = ~augment_flag;
     }
+
+    // Turn on initially
+    augment();
 
     // BUTTON RESET TO DEFAULT
     document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
@@ -493,34 +490,6 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         }
     };
 
-    // PASTE IMG INTO EMAIL
-    // "onpaste" Function (daemon apply's this function to an event listener)
-    function aasmPaste(pasteEvent) {
-        let item = pasteEvent.clipboardData.items[0];
-
-        if (item.type.indexOf("image") === 0) {
-            let blob = item.getAsFile();
-
-            let reader = new FileReader();
-            reader.onload = function(event)	{
-
-                // grab text area
-                let p = document.activeElement.contentWindow.document.activeElement.querySelector("p table p table").parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
-
-                // create image
-                let img = document.createElement("img");
-                img.setAttribute("id", "PastedIMG");
-
-                // insert after element.
-                p.parentNode.insertBefore(img, p.nextSibling);
-
-                // now paste
-                document.activeElement.contentWindow.document.activeElement.querySelector("#PastedIMG").src = event.target.result;
-            };
-            reader.readAsDataURL(blob);
-        }
-    };
-
     // LOG USE OF THIS TOOL:
     // Sends timestamp of usage to RESTful API server
     function log_usage() {
@@ -558,20 +527,129 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     };
     log_usage();
 
+    // Advertise update if one if available (display === "block" when update available -see log_usage() function)
+    function advertise_update() {
+        // daemon hits this often so return if not necessary
+        if (document.querySelector("#btn-update").style.display === "none") {
+            return;
+        }
 
+        // now wobble the update button every so often
+        let rand = Math.floor(Math.random() * 10);
+        if (rand % 10 === 0) {
+            document.querySelector("#btn-update").classList.remove('animate__animated', 'animate__rubberBand');
+            setTimeout(() => {
+                document.querySelector("#btn-update").classList.add('animate__animated', 'animate__rubberBand');
+            }, 2000);
+        }
+    }
+
+    // PASTE IMG INTO EMAIL
+    function aasmPaste() {
+        // daemon will hit this often so return immediately if we're not in a rich text editor
+        if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') === -1) {
+            return;
+        }
+
+        document.activeElement.contentWindow.document.activeElement.onpaste = (pasteEvent) => {
+            let item = pasteEvent.clipboardData.items[0];
+
+            if (item.type.indexOf("image") === 0) {
+                let blob = item.getAsFile();
+
+                let reader = new FileReader();
+                reader.onload = function(event)	{
+
+                    // grab text area
+                    let p = document.activeElement.contentWindow.document.activeElement.querySelector("p table p table").parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
+
+                    // create image
+                    let img = document.createElement("img");
+                    //img.setAttribute("id", "PastedIMG");
+
+                    // insert after element.
+                    p.parentNode.insertBefore(img, p.nextSibling);
+
+                    // now paste
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(blob);
+            }
+        }
+    };
+
+    // Snap and Search (magnifying glass)
+    function add_magnifying_glass() {
+        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#SPAN_IN_OFFICERS_")) {
+            return;
+        }
+        // Insert buttons if not already there
+        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-searchto")) {
+
+            // create buttons
+            let btn1 = document.createElement("div");
+            btn1.setAttribute("id", "aasm-snapto");
+            btn1.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
+            btn1.innerHTML = '🔎 snap';
+
+            let btn2 = document.createElement("div");
+            btn2.setAttribute("id", "aasm-searchto");
+            btn2.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
+            btn2.innerHTML = '🔎 search';
+
+            // flex container
+            let wrapper = document.createElement("div");
+            wrapper.setAttribute("style", "display: flex;");
+            wrapper.appendChild(btn1);
+            wrapper.appendChild(btn2);
+
+            // insert into dom
+            let div = document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector('table tr td div');
+            div.parentNode.insertBefore(wrapper, div.nextSibling);
+
+            // add event listeners
+            btn1.addEventListener("click", () => keyboard_lookup('snap'));
+            btn2.addEventListener("click", () => keyboard_lookup('search'));
+        }
+    }
+
+    // Clear search (fire)
+    function add_fire() {
+        // daemon will hit this often so return if we're not in the right spot
+        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire")) {
+            return;
+        }
+
+        // return if fire has already been added
+        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire")) {
+            return;
+        }
+
+        // add fire element
+        let fire = document.createElement("div");
+        fire.setAttribute("id", "aasm-fire");
+        fire.setAttribute("style", "cursor: pointer; position: fixed; right: 1rem; bottom: 1.1rem; font-size: 1.5rem;");
+        fire.innerHTML = '🔥';
+
+        // attach to dom
+        let asmClear = document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#BTN_CLEAR");
+        asmClear.parentNode.appendChild(fire);
+
+        // create onclick event listener
+        document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire").addEventListener("click", () => {
+            document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#BTN_CLEAR").click();
+            let btns = document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelectorAll("button.search-control-clear-btn.selected:not([style*='display:none'])");
+            for (let b of btns) {
+                b.click();
+            }
+        });
+    }
+
+    // DAEMON
     function augmented_asm_daemon()
     {
         // advertise update
-        let btn = document.querySelector("#btn-update");
-        if (btn.style.display === "block") {
-            let rand = Math.floor(Math.random() * 10);
-            if (rand % 10 === 0) {
-                btn.classList.remove('animate__animated', 'animate__rubberBand');
-                setTimeout(() => {
-                    btn.classList.add('animate__animated', 'animate__rubberBand');
-                }, 5000);
-            }
-        }
+        advertise_update();
 
         // `Augment` button off? Go no further
         if (!augment_flag) {
@@ -582,44 +660,13 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         readabilityMode.action(true);
 
         // apply enable pasting into emails.
-        try {
-            if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') != -1) {
-                document.activeElement.contentWindow.document.activeElement.onpaste = aasmPaste;
-            }}
-        catch { null; }
+        try { aasmPaste(); } catch { null; }
 
         // apply snap and search buttons
-        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#SPAN_IN_OFFICERS_")) {
-            // Insert buttons if not already there
-            if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-searchto")) {
+        try { add_magnifying_glass(); } catch {null;}
 
-                // create buttons
-                let btn1 = document.createElement("div");
-                btn1.setAttribute("id", "aasm-snapto");
-                btn1.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
-                btn1.innerHTML = '🔎 snap';
-
-                let btn2 = document.createElement("div");
-                btn2.setAttribute("id", "aasm-searchto");
-                btn2.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
-                btn2.innerHTML = '🔎 search';
-
-                // flex container
-                let wrapper = document.createElement("div");
-                wrapper.setAttribute("style", "display: flex;");
-                wrapper.appendChild(btn1);
-                wrapper.appendChild(btn2);
-
-                // insert into dom
-                let div = document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector('table tr td div');
-                div.parentNode.insertBefore(wrapper, div.nextSibling);
-
-                // add event listeners
-                btn1.addEventListener("click", () => keyboard_lookup('snap'));
-                btn2.addEventListener("click", () => keyboard_lookup('search'));
-            }
-        }
-
+        // apply fire button (clear search)
+        try { add_fire(); } catch {null;}
     }
 
     augmented_asm_daemon();
