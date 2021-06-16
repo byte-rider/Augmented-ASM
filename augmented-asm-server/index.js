@@ -39,10 +39,8 @@ app.post('/wave-hello', (req, res) => {
         })
 
         .finally(n => {
-            if (req.body.user === "Edwards, George") {
+            if (req.body.user === "Edwards, George")
                 return;
-            }
-
             logData.users.push(req.body);
             fs.writeFileSync(filenameLog, JSON.stringify(logData, null, 2));
         })

@@ -11,7 +11,6 @@
 // @grant        GM_xmlhttpRequest
 // @connect      samsara-nc
 // ==/UserScript==
-
 //debugger;
 
 const AASMVERSION = 1.2;
