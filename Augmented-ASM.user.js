@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.1
+// @version      1.2
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -12,7 +12,9 @@
 // @connect      samsara-nc
 // ==/UserScript==
 
-const aasmversion = "1.1";
+//debugger;
+
+const AASMVERSION = 1.2;
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -28,6 +30,10 @@ const cssControls = `
 }
 
 #aasm_controls-2 {
+  display: none;
+}
+
+#btn-update {
   display: none;
 }
 
@@ -72,7 +78,7 @@ const cssControls = `
 	font-family: "Lucida Console", "Courier New", monospace;
 }
 
-#aasm_controls .watermark {
+.aasmwatermark {
     position: absolute;
     left: 44rem;
     top: 3rem;
@@ -127,6 +133,12 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 (function() {
     'use strict';
 
+    /*
+    // add animation library (https://animate.style/)
+    const ANIMATE = GM_getResourceText("IMPORTED_CSS");
+    GM_addStyle(ANIMATE);
+    */
+
     // HTML SCAFFOLDING - CONTROLS
     // NOTE: div's where one might put <label> or <span>
     // this is to avoid unwanted CSS
@@ -137,6 +149,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         <button id="btn-augment" class="aasm-button">augment</button>
         <button id="btn-default" class="aasm-button">default</button>
         <button id="btn-about" class="aasm-button">about</button>
+        <button id="btn-update" class="aasm-button">update</button>
       </div>
       <div class="aasm-flex-item">
         <input id="slider-contents" class="slider" type="range" min="1.0" max="2.0" step="0.05">
@@ -149,7 +162,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
       <div class="aasm-flex-item">
         <input id="slider-description" class="slider" type="range" min="1.3" max="7.0" step="0.05">
         <div class="slider-label">description</div>
-        <div class="watermark">Augmented-ASM v${aasmversion}</div>
+        <div class="aasmwatermark">Augmented-ASM v${AASMVERSION}</div>
       </div>
     </div>
     <div id="aasm_controls-2">
@@ -164,6 +177,13 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     styleElementAASM.type = "text/css";
     styleElementAASM.innerHTML = cssControls;
     (document.head || document.documentElement).appendChild(styleElementAASM);
+
+    // INJECT ANIMATION CSS LIBRARY (https://animate.style/)
+    let animate = document.createElement('link');
+    animate.type = "text/css";
+    animate.rel = 'stylesheet';
+    animate.href = "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css";
+    document.head.appendChild(animate);
 
     // BUTTON HIDE
     document.querySelector("#aasm_controls #btn-hide").addEventListener("click", hide);
@@ -180,6 +200,84 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         document.querySelector("#aasm_controls").style.display = "flex";
         document.querySelector("#aasm_controls-2").style.display = "none";
     }
+
+
+    // BUTTON AUGMENT
+    let augment_flag = false;
+    document.querySelector("#btn-augment").addEventListener("click", augment);
+    function augment() {
+
+        // turn augments on
+        if (!augment_flag) {
+            //wastedSpace(true);
+            navbarFix(true);
+            readabilityMode(true);
+        }
+
+        // turn augments off
+        if (augment_flag) {
+            //wastedSpace(false);
+            navbarFix(false);
+            readabilityMode(false);
+        }
+
+        // change button accordingly
+        (augment_flag) ? document.querySelector("#btn-augment").classList.remove("aasm-button-active") : document.querySelector("#btn-augment").classList.add("aasm-button-active");
+
+        // toggle flag
+        augment_flag = ~augment_flag;
+    }
+
+    // BUTTON RESET TO DEFAULT
+    document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
+    function setDefault()
+    {
+        // reset 1st slider (tab content size)
+        let tabs = document.querySelectorAll(".tab");
+        let tabs_icon = document.querySelectorAll(".tab-label-image");
+        let tabs_text = document.querySelectorAll(".tab-label-text");
+        let tabs_close = document.querySelectorAll(".tab-label-close");
+        for (let i = 0; i < tabs_text.length; i++)
+        {
+            tabs_icon[i].style.width = "16px";
+            tabs_icon[i].style.height = "16px";
+            tabs_text[i].style.fontSize = "inherit";
+            tabs_text[i].style.marginLeft = "20px";
+            tabs_text[i].style.marginRight = "25px";
+            tabs_close[i].style.width = "16px";
+            tabs_close[i].style.height = "16px";
+        }
+
+        // reset 2nd slider (tab width)
+        for (let i = 0; i < tabs_text.length; i++)
+        {
+            tabs_text[i].style.maxWidth = "200px";
+        }
+
+        // reset third slider (description)
+        slider_description.value = 1;
+        slider_description.oninput();
+
+
+        // toggle buttons if they're on.
+        (augment_flag) ? augment() : null;
+    }
+
+    // BUTTON ABOUT
+    document.querySelector("#aasm_controls #btn-about").addEventListener("click", aboutAlert);
+    function aboutAlert()
+    {
+        window.prompt(`Augmented-ASM v${AASMVERSION}
+bugs and/or requests go to`, "George.Edwards@csiro.au");
+    }
+
+    // BUTTON UPDATE
+    document.querySelector("#aasm_controls #btn-update").addEventListener("click", update);
+    function update()
+    {
+        window.open("https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js");
+    }
+
 
     // WASTED SPACE
     function wastedSpace(toggleOn)
@@ -252,76 +350,6 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         }
         readabilityMode.action = action;
         (toggleOn) ? action(true) : action(false);
-
-    }
-
-    // BUTTON AUGMENT
-    let augment_flag = false;
-    document.querySelector("#btn-augment").addEventListener("click", augment);
-    function augment() {
-
-        // turn augments on
-        if (!augment_flag) {
-            wastedSpace(true);
-            navbarFix(true);
-            readabilityMode(true);
-        }
-
-        // turn augments off
-        if (augment_flag) {
-            wastedSpace(false);
-            navbarFix(false);
-            readabilityMode(false);
-        }
-
-        // change button accordingly
-        (augment_flag) ? document.querySelector("#btn-augment").classList.remove("aasm-button-active") : document.querySelector("#btn-augment").classList.add("aasm-button-active");
-
-        // toggle flag
-        augment_flag = ~augment_flag;
-    }
-
-    // BUTTON RESET TO DEFAULT
-    document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
-    function setDefault()
-    {
-        // reset 1st slider (tab content size)
-        let tabs = document.querySelectorAll(".tab");
-        let tabs_icon = document.querySelectorAll(".tab-label-image");
-        let tabs_text = document.querySelectorAll(".tab-label-text");
-        let tabs_close = document.querySelectorAll(".tab-label-close");
-        for (let i = 0; i < tabs_text.length; i++)
-        {
-            tabs_icon[i].style.width = "16px";
-            tabs_icon[i].style.height = "16px";
-            tabs_text[i].style.fontSize = "inherit";
-            tabs_text[i].style.marginLeft = "20px";
-            tabs_text[i].style.marginRight = "25px";
-            tabs_close[i].style.width = "16px";
-            tabs_close[i].style.height = "16px";
-        }
-
-        // reset 2nd slider (tab width)
-        for (let i = 0; i < tabs_text.length; i++)
-        {
-            tabs_text[i].style.maxWidth = "200px";
-        }
-
-        // reset third slider (description)
-        slider_description.value = 1;
-        slider_description.oninput();
-
-
-        // toggle buttons if they're on.
-        (augment_flag) ? augment() : null;
-    }
-
-    // BUTTON ABOUT
-    document.querySelector("#aasm_controls #btn-about").addEventListener("click", aboutAlert);
-    function aboutAlert()
-    {
-        window.prompt(`Augmented-ASM v${aasmversion}
-bugs and/or requests go to`, "George.Edwards@csiro.au");
     }
 
     // FIRST SLIDER - (SIZE OF TAB CONTENTS)
@@ -403,14 +431,17 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
         let cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
         let names_listed = null;
 
-        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;")
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;") {
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_ ${cssFoo}`);
+        }
 
-        if (activeDocument.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;")
+        if (activeDocument.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;") {
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_GROUPS_ ${cssFooGroups}`);
+        }
 
-        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;")
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;") {
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
+        }
 
         let simulateClick = function(element) {
             console.log("trying to click")
@@ -510,7 +541,7 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
             {
                 'user' : document.getElementById("OFFICER_NAME").value,
                 'time' : Date.now(),
-                'version': aasmversion,
+                'version': AASMVERSION,
                 'scriptengine': scriptEngine,
                 'userstring': navigator.userAgent,
             };
@@ -521,25 +552,42 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
             headers: { "Content-Type": "application/json" },
             data: JSON.stringify(payload),
             onload: function(response) {
-                console.log(response.responseText);
+                if (AASMVERSION < JSON.parse(response.responseText).version) {
+                    document.querySelector("#btn-update").style.display = "block";
+                }
             }
         });
     };
     log_usage();
 
+
     function augmented_asm_daemon()
     {
-        if (!augment_flag)
+        // advertise update
+        let btn = document.querySelector("#btn-update");
+        if (btn.style.display === "block") {
+            let rand = Math.floor(Math.random() * 10);
+            if (rand % 10 === 0) {
+                btn.classList.remove('animate__animated', 'animate__rubberBand');
+                setTimeout(() => {
+                    btn.classList.add('animate__animated', 'animate__rubberBand');
+                }, 5000);
+            }
+        }
+
+        // `Augment` button off? Go no further
+        if (!augment_flag) {
             return;
+        }
 
         // apply readability mode for any new tabs.
         readabilityMode.action(true);
 
         // apply enable pasting into emails.
         try {
-            if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') != -1)
+            if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') != -1) {
                 document.activeElement.contentWindow.document.activeElement.onpaste = aasmPaste;
-        }
+            }}
         catch { null; }
 
         // apply snap and search buttons
@@ -573,6 +621,7 @@ bugs and/or requests go to`, "George.Edwards@csiro.au");
                 btn2.addEventListener("click", () => keyboard_lookup('search'));
             }
         }
+
     }
 
     augmented_asm_daemon();

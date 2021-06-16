@@ -7,6 +7,7 @@ const util = require('util');
 const lookup = util.promisify(dns.reverse);
 const app = express();
 const PORT = 8080;
+const VERSION = 1.2;
 
 app.use( express.json() ); // middleware
 app.listen(PORT, () => console.log(`running on port ${PORT}`))
@@ -30,12 +31,18 @@ app.post('/wave-hello', (req, res) => {
     getHostname(ip)
         .then(value => {
             req.body.hostname = value[0];
-            logData.users.push(req.body);
-            fs.writeFileSync(filenameLog, JSON.stringify(logData, null, 2));
         })
         
         .catch(error => {
             req.body.hostname = `lookup error: ${error.errno}`;
+            
+        })
+
+        .finally(n => {
+            if (req.body.user === "Edwards, George") {
+                return;
+            }
+
             logData.users.push(req.body);
             fs.writeFileSync(filenameLog, JSON.stringify(logData, null, 2));
         })
@@ -48,7 +55,7 @@ app.post('/wave-hello', (req, res) => {
     fs.writeFileSync(filenameLogUnique, JSON.stringify(logDataUnique, null, 2))
 
     // send response
-    res.send( `Augmented-ASM: 👌` );
+    res.send( { version: VERSION } );
 })
 
 app.get('/wave-hello', (req, res) => {
