@@ -266,8 +266,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     document.querySelector("#aasm_controls #btn-about").addEventListener("click", aboutAlert);
     function aboutAlert()
     {
-        window.prompt(`Augmented-ASM v${AASMVERSION}
-bugs and/or requests go to`, "George.Edwards@csiro.au");
+        window.open("https://confluence.csiro.au/display/~edw19b/Augmented-ASM");
     }
 
     // BUTTON UPDATE
