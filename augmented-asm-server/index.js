@@ -7,7 +7,7 @@ const util = require('util');
 const lookup = util.promisify(dns.reverse);
 const app = express();
 const PORT = 8080;
-const VERSION = 1.2;
+const VERSION = 1.3;
 
 app.use( express.json() ); // middleware
 app.listen(PORT, () => console.log(`running on port ${PORT}`))

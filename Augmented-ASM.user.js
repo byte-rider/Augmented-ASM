@@ -420,7 +420,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     // KEYBOARD SNAP TO
     function keyboard_lookup(type)
     {
-        let keypress = prompt(`${type}-to`, "");
+        let keypress = prompt(`${type}`, "");
         let activeDocument = document.activeElement.contentWindow.document.activeElement.contentWindow.document
         let cssFoo = ".e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span";
         let cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
@@ -590,12 +590,12 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             let btn1 = document.createElement("div");
             btn1.setAttribute("id", "aasm-snapto");
             btn1.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
-            btn1.innerHTML = '🔎 snap';
+            btn1.innerHTML = '👇 snap';
 
             let btn2 = document.createElement("div");
             btn2.setAttribute("id", "aasm-searchto");
             btn2.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
-            btn2.innerHTML = '🔎 search';
+            btn2.innerHTML = '🔍 find';
 
             // flex container
             let wrapper = document.createElement("div");
@@ -609,7 +609,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
             // add event listeners
             btn1.addEventListener("click", () => keyboard_lookup('snap'));
-            btn2.addEventListener("click", () => keyboard_lookup('search'));
+            btn2.addEventListener("click", () => keyboard_lookup('find'));
         }
     }
 
