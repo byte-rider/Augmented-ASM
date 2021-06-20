@@ -735,7 +735,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
         // `Augment` button off? Go no further
         if (!augment_flag) {
-            // disable_tab_reordering();
+            disable_tab_reordering();
             return;
         };
 
@@ -752,7 +752,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         try { add_fire(); } catch {null;}
 
         // apply tab reordering
-        // enable_tab_reordering();
+        enable_tab_reordering();
     }
 
     augmented_asm_daemon();
