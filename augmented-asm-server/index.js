@@ -3,21 +3,24 @@ const filenameLogUnique = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augme
 const express = require('express');
 const fs = require('fs');
 const dns = require('dns');
-const util = require('util');
-const lookup = util.promisify(dns.reverse);
 const app = express();
 const PORT = 8080;
 const VERSION = 1.3;
 
-app.use( express.json() ); // middleware
+app.use( express.json() ); // load json middleware
+app.use('/static', express.static('./') ); // serve local files (used to "@require" the script within Tampermonkey; enables me to edit the file in an IDE)
+
 app.listen(PORT, () => console.log(`running on port ${PORT}`))
 
-async function getHostname(ip) {
-    try {
-        return await lookup(ip);
-    } catch (err) {
-        throw err;
-    }
+function reverse_DNS_lookup(ip) {
+    return new Promise( (resolve, reject) => {
+        dns.lookupService(ip, 587, (err, host, service) =>  {
+            if (err) 
+            resolve(err);
+
+            resolve(host);
+        });
+    })
 };
 
 app.post('/wave-hello', (req, res) => {
@@ -26,16 +29,13 @@ app.post('/wave-hello', (req, res) => {
     let logDataUnique = JSON.parse(fs.readFileSync(filenameLogUnique));
     let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress; // get incoming IP from request headers
 
-    // append incoming data with IP (sync) and Hostname (async) then once promise has resolved write the file to disk.
+    // append incoming data with IP
     req.body.ip = ip;
-    getHostname(ip)
-        .then(value => {
-            req.body.hostname = value[0];
-        })
-        
-        .catch(error => {
-            req.body.hostname = `lookup error: ${error.errno}`;
-            
+
+    // append Hostname (async lookup) and write to disk.
+    reverse_DNS_lookup(ip)
+        .then((hostname) => {
+            req.body.hostname = hostname;
         })
 
         .finally(n => {
@@ -43,7 +43,7 @@ app.post('/wave-hello', (req, res) => {
                 return;
             logData.users.push(req.body);
             fs.writeFileSync(filenameLog, JSON.stringify(logData, null, 2));
-        })
+        });
 
     // append unique entry
     if (!logDataUnique.users.find(e => e.user === req.body.user))

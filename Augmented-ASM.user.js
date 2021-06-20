@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.3
+// @version      1.4
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -13,7 +13,7 @@
 // ==/UserScript==
 debugger;
 
-const AASMVERSION = 1.3;
+const AASMVERSION = 1.4;
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -645,6 +645,88 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         });
     }
 
+    // Reorder tabs with Drag and Drop
+    // Source: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
+    // Some notes:
+    //  * onDragOver() and onDrop() must exist for on any element considered to be a dropzone
+    //  * event.preventDefault(); means prevent the browser's inherit reaction to when something is dropped. Typically it'll try and open(thing_dropped) as though it was a file (That's Firefox's behaviour at least)
+    function enable_tab_reordering() {
+        let tabs = document.querySelectorAll("li.tab");
+        for (let t of tabs) { 
+            t.setAttribute("draggable", "true");
+            t.addEventListener("dragstart", _onDragStart, true);
+            t.addEventListener("dragend", _onDragEnd, true); 
+            t.addEventListener("dragenter", _onDragEnter, true); 
+            t.addEventListener("dragexit", _onDragExit, true); 
+            t.addEventListener("dragover", _onDragOver, true); 
+            t.addEventListener("drop", _onDrop, true); 
+        }
+    };
+
+    function disable_tab_reordering() {
+        let tabs = document.querySelectorAll("li.tab");
+        for (let t of tabs) { 
+            t.removeAttribute("draggable");
+            t.removeEventListener("dragstart", _onDragStart, true);
+            t.removeEventListener("dragend", _onDragEnd, true);
+            t.removeEventListener("dragenter", _onDragEnter, true);
+            t.removeEventListener("dragexit", _onDragExit, true);
+            t.removeEventListener("dragover", _onDragOver, true);
+            t.removeEventListener("drop", _onDrop, true);
+        }
+    };
+
+    let _onDragStart = function(event) {
+        // set drag image
+        let img = new Image();
+        img.src = 'https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/tab.png';
+        event.dataTransfer.setDragImage(img, 0, 0);
+
+        // write Alemba's tabid to the drag event object (to be plucked out later)
+        event.dataTransfer.setData('text/plain', event.target.getAttribute('tabid'));
+
+        // tab being dragged should disappear
+        event.target.style.display = 'none';
+    };
+    
+
+    let _onDragEnd = function(event) {
+        // animate tab back
+        event.currentTarget.classList.add('animate__animated', 'animate__slideInUp');
+        event.currentTarget.style.display = '';
+        event.target.onanimationend = (event) => {
+            event.currentTarget.classList.remove('animate__animated', 'animate__slideInUp');
+        };
+    };
+
+    let _onDragEnter = function(event) {
+        // indicate new position
+        event.currentTarget.style.borderLeft = '2rem solid yellow';
+        event.preventDefault();
+    };
+
+    let _onDragExit = function(event) {
+        // cancel indication
+        event.currentTarget.style.borderLeft = '';
+        event.preventDefault();
+    };
+
+    let _onDragOver = function(event) {
+        event.preventDefault();
+    };
+        
+    let _onDrop = function(event) {
+        // current.target is now the tab being dropped onto. This is why we
+        // stored Alemba's "tabid" attribute value in the Event object
+        const tabId = event.dataTransfer.getData('text/plain');
+        const tabDragged = document.querySelector(`li[tabid='${tabId}']`);
+        const tabDroppedOnto = event.currentTarget;
+        tabDroppedOnto.style.borderLeft = ''; // because onDragExit() never happened
+        tabDroppedOnto.insertAdjacentElement('beforebegin', tabDragged);
+        event.preventDefault();
+        event.dataTransfer.clearData();
+    };
+
     // DAEMON
     function augmented_asm_daemon()
     {
@@ -653,8 +735,9 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
         // `Augment` button off? Go no further
         if (!augment_flag) {
+            // disable_tab_reordering();
             return;
-        }
+        };
 
         // apply readability mode for any new tabs.
         readabilityMode.action(true);
@@ -667,6 +750,9 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
         // apply fire button (clear search)
         try { add_fire(); } catch {null;}
+
+        // apply tab reordering
+        // enable_tab_reordering();
     }
 
     augmented_asm_daemon();
