@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.3
+// @version      1.4
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -13,7 +13,7 @@
 // ==/UserScript==
 debugger;
 
-const AASMVERSION = 1.3;
+const AASMVERSION = 1.4;
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -655,23 +655,21 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         for (let t of tabs) { 
             t.setAttribute("draggable", "true");
             t.addEventListener("dragstart", _onDragStart, true);
-            t.addEventListener("dragend", _onDragEnd, true); 
-            t.addEventListener("dragenter", _onDragEnter, true); 
-            t.addEventListener("dragexit", _onDragExit, true); 
-            t.addEventListener("dragover", _onDragOver, true); 
-            t.addEventListener("drop", _onDrop, true); 
+            t.addEventListener("dragend", _onDragEnd, true);
+            t.addEventListener("dragover", _onDragOver, true);
+            t.addEventListener("dragleave", _onDragLeave, true);
+            t.addEventListener("drop", _onDrop, true);
         }
     };
 
     function disable_tab_reordering() {
         let tabs = document.querySelectorAll("li.tab");
-        for (let t of tabs) { 
+        for (let t of tabs) {
             t.removeAttribute("draggable");
             t.removeEventListener("dragstart", _onDragStart, true);
             t.removeEventListener("dragend", _onDragEnd, true);
-            t.removeEventListener("dragenter", _onDragEnter, true);
-            t.removeEventListener("dragexit", _onDragExit, true);
             t.removeEventListener("dragover", _onDragOver, true);
+            t.removeEventListener("dragleave", _onDragLeave, true);
             t.removeEventListener("drop", _onDrop, true);
         }
     };
@@ -686,9 +684,20 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         event.dataTransfer.setData('text/plain', event.target.getAttribute('tabid'));
 
         // tab being dragged should disappear
-        event.target.style.display = 'none';
+        // event.target.style.display = 'none';
+        // The above line causes Edge to glitch. Workaround below thanks to: https://stackoverflow.com/a/20734159
+        setTimeout(() => {
+        	event.target.style.display = 'none';
+        }, 0);
+      
+        // The below code is required for Edge because for some reason Edge fires _onDragEnd()
+        // when hovering over child elements (the icon and the close icon [x])
+        // The below dirty Edge hack is from https://stackoverflow.com/a/14027995)
+        let children = document.querySelectorAll("li.tab div");
+        for (let c of children) {
+          c.style.pointerEvents = "none";
+        }
     };
-    
 
     let _onDragEnd = function(event) {
         // animate tab back
@@ -698,20 +707,16 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             event.currentTarget.classList.remove('animate__animated', 'animate__slideInUp');
         };
     };
-
-    let _onDragEnter = function(event) {
+  
+    let _onDragOver = function(event) {
         // indicate new position
         event.currentTarget.style.borderLeft = '2rem solid yellow';
         event.preventDefault();
     };
 
-    let _onDragExit = function(event) {
+    let _onDragLeave = function(event) {
         // cancel indication
         event.currentTarget.style.borderLeft = '';
-        event.preventDefault();
-    };
-
-    let _onDragOver = function(event) {
         event.preventDefault();
     };
         
@@ -723,6 +728,13 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         const tabDroppedOnto = event.currentTarget;
         tabDroppedOnto.style.borderLeft = ''; // because onDragExit() never happened
         tabDroppedOnto.insertAdjacentElement('beforebegin', tabDragged);
+      
+        // remove dirty Edge hack to ensure 'close' icon [x] is clickable again
+        let children = document.querySelectorAll("li.tab div");
+        for (let c of children) {
+          c.style.pointerEvents = "inherit";
+        }
+        
         event.preventDefault();
         event.dataTransfer.clearData();
     };
@@ -735,7 +747,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
         // `Augment` button off? Go no further
         if (!augment_flag) {
-            // disable_tab_reordering();
+            disable_tab_reordering();
             return;
         };
 
@@ -752,7 +764,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         try { add_fire(); } catch {null;}
 
         // apply tab reordering
-        // enable_tab_reordering();
+        enable_tab_reordering();
     }
 
     augmented_asm_daemon();
