@@ -5,7 +5,7 @@ const fs = require('fs');
 const dns = require('dns');
 const app = express();
 const PORT = 8080;
-const VERSION = 1.4;
+const VERSION = 1.3;
 
 app.use( express.json() ); // load json middleware
 app.use('/static', express.static('./') ); // serve local files (used to "@require" the script within Tampermonkey; enables me to edit the file in an IDE)
