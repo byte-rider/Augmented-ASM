@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.4
+// @version      1.3
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -13,7 +13,7 @@
 // ==/UserScript==
 debugger;
 
-const AASMVERSION = 1.4;
+const AASMVERSION = 1.3;
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -735,7 +735,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
         // `Augment` button off? Go no further
         if (!augment_flag) {
-            disable_tab_reordering();
+            // disable_tab_reordering();
             return;
         };
 
@@ -752,7 +752,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         try { add_fire(); } catch {null;}
 
         // apply tab reordering
-        enable_tab_reordering();
+        // enable_tab_reordering();
     }
 
     augmented_asm_daemon();
