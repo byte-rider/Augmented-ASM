@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.3
+// @version      1.4
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -14,7 +14,7 @@
 
 // debugger;
 
-const AASMVERSION = 1.3;
+const AASMVERSION = 1.4;
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -130,7 +130,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
 `;
 
-(function() {
+(function () {
     'use strict';
 
     // HTML SCAFFOLDING - CONTROLS
@@ -181,16 +181,16 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
     // BUTTON HIDE
     document.querySelector("#aasm_controls #btn-hide").addEventListener("click", hide);
-    function hide()
-    {
+
+    function hide() {
         document.querySelector("#aasm_controls").style.display = "none";
         document.querySelector("#aasm_controls-2").style.display = "flex";
     }
 
     // BUTTON SHOW
     document.querySelector("#aasm_controls-2 #btn-show").addEventListener("click", show);
-    function show()
-    {
+
+    function show() {
         document.querySelector("#aasm_controls").style.display = "flex";
         document.querySelector("#aasm_controls-2").style.display = "none";
     }
@@ -199,6 +199,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     // BUTTON AUGMENT
     let augment_flag = false;
     document.querySelector("#btn-augment").addEventListener("click", augment);
+
     function augment() {
 
         // turn augments on
@@ -216,7 +217,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         }
 
         // change button accordingly
-        (augment_flag) ? document.querySelector("#btn-augment").classList.remove("aasm-button-active") : document.querySelector("#btn-augment").classList.add("aasm-button-active");
+        (augment_flag) ? document.querySelector("#btn-augment").classList.remove("aasm-button-active"): document.querySelector("#btn-augment").classList.add("aasm-button-active");
 
         // toggle flag
         augment_flag = ~augment_flag;
@@ -227,15 +228,14 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
     // BUTTON RESET TO DEFAULT
     document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
-    function setDefault()
-    {
+
+    function setDefault() {
         // reset 1st slider (tab content size)
         let tabs = document.querySelectorAll(".tab");
         let tabs_icon = document.querySelectorAll(".tab-label-image");
         let tabs_text = document.querySelectorAll(".tab-label-text");
         let tabs_close = document.querySelectorAll(".tab-label-close");
-        for (let i = 0; i < tabs_text.length; i++)
-        {
+        for (let i = 0; i < tabs_text.length; i++) {
             tabs_icon[i].style.width = "16px";
             tabs_icon[i].style.height = "16px";
             tabs_text[i].style.fontSize = "inherit";
@@ -246,8 +246,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         }
 
         // reset 2nd slider (tab width)
-        for (let i = 0; i < tabs_text.length; i++)
-        {
+        for (let i = 0; i < tabs_text.length; i++) {
             tabs_text[i].style.maxWidth = "200px";
         }
 
@@ -257,43 +256,39 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
 
         // toggle buttons if they're on.
-        (augment_flag) ? augment() : null;
+        (augment_flag) ? augment(): null;
     }
 
     // BUTTON ABOUT
     document.querySelector("#aasm_controls #btn-about").addEventListener("click", aboutAlert);
-    function aboutAlert()
-    {
+
+    function aboutAlert() {
         window.open("https://confluence.csiro.au/display/~edw19b/Augmented-ASM");
     }
 
     // BUTTON UPDATE
     document.querySelector("#aasm_controls #btn-update").addEventListener("click", update);
-    function update()
-    {
+
+    function update() {
         window.open("https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js");
     }
 
 
     // WASTED SPACE
-    function wastedSpace(toggleOn)
-    {
+    function wastedSpace(toggleOn) {
         let e = document.querySelector(".outer-tab-view");
-        (toggleOn) ? e.style.marginLeft = "0rem" : e.style.marginLeft = "20px";
+        (toggleOn) ? e.style.marginLeft = "0rem": e.style.marginLeft = "20px";
     }
 
     // NAVBAR FIX
-    function navbarFix(toggleOn)
-    {
+    function navbarFix(toggleOn) {
         let e = document.querySelector("#AlembaToolbar .navbar-nav");
-        (toggleOn) ? e.style.minWidth = "570px" : e.style.minWidth = "410px";
+        (toggleOn) ? e.style.minWidth = "570px": e.style.minWidth = "410px";
     }
 
     // READABILITY MODE
-    function readabilityMode(toggleOn)
-    {
-        function action(bool_apply_or_remove)
-        {
+    function readabilityMode(toggleOn) {
+        function action(bool_apply_or_remove) {
             // ASM deliver tabbed content through iFrames. We must iterate through them all
             // and append our own <style> tag in each frame, ensuring all tabs are re-styled.
             // This allows us to undo by removing each <style> tag appropriately.
@@ -301,12 +296,9 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
             // APPLY
             if (bool_apply_or_remove) {
-                for (let i = 0; i < asm_iframes.length; i++)
-                {
-                    try
-                    {
-                        if (!asm_iframes[i].contentWindow.document.querySelector("#Main").contentWindow.document.getElementById(`readability_mode_css${i}`))
-                        {
+                for (let i = 0; i < asm_iframes.length; i++) {
+                    try {
+                        if (!asm_iframes[i].contentWindow.document.querySelector("#Main").contentWindow.document.getElementById(`readability_mode_css${i}`)) {
                             // create <style>
                             let readability_mode_css = document.createElement('style');
                             readability_mode_css.type = "text/css";
@@ -316,13 +308,11 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
                             try // try to inject <style>
                             {
                                 asm_iframes[i].contentWindow.document.querySelector("#Main").contentWindow.document.body.appendChild(readability_mode_css);
-                            }
-                            catch(err) {
+                            } catch (err) {
                                 // nothing to do
                             }
                         }
-                    }
-                    catch(err) {
+                    } catch (err) {
                         // nothing to do
                     }
                 }
@@ -330,34 +320,29 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
             // REMOVE
             if (!bool_apply_or_remove) {
-                for (let i = 0; i < asm_iframes.length; i++)
-                {
+                for (let i = 0; i < asm_iframes.length; i++) {
                     try // try to delete <style> from iframe context
                     {
                         asm_iframes[i].contentWindow.document.querySelector("#Main").contentWindow.document.getElementById(`readability_mode_css${i}`).remove();
                         console.log(asm_iframes[i]);
-                    }
-                    catch(err)
-                    {
+                    } catch (err) {
                         // console.log(`asm_iframes[${i}] is not the iframe we're looking for.`);
                     }
                 }
             }
         }
         readabilityMode.action = action;
-        (toggleOn) ? action(true) : action(false);
+        (toggleOn) ? action(true): action(false);
     }
 
     // FIRST SLIDER - (SIZE OF TAB CONTENTS)
     let slider_contents = document.querySelector("#aasm_controls #slider-contents");
-    slider_contents.oninput = function()
-    {
+    slider_contents.oninput = function () {
         let tabs = document.querySelectorAll(".tab");
         let tabs_icon = document.querySelectorAll(".tab-label-image");
         let tabs_text = document.querySelectorAll(".tab-label-text");
         let tabs_close = document.querySelectorAll(".tab-label-close");
-        for (let i = 0; i < tabs_text.length; i++)
-        {
+        for (let i = 0; i < tabs_text.length; i++) {
             tabs_icon[i].style.width = slider_contents.value + "rem";
             tabs_icon[i].style.height = slider_contents.value + "rem";
             tabs_text[i].style.fontSize = slider_contents.value + "rem";
@@ -369,12 +354,10 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     }
     // SECOND SLIDER - (TAB MAX-WIDTH)
     let slider_maxwidth = document.querySelector("#aasm_controls #slider-maxwidth");
-    slider_maxwidth.oninput = function()
-    {
+    slider_maxwidth.oninput = function () {
         let tabs_text = document.querySelectorAll(".tab-label-text");
         let max_width = 50 * slider_maxwidth.value;
-        for (let i = 0; i < tabs_text.length; i++)
-        {
+        for (let i = 0; i < tabs_text.length; i++) {
             tabs_text[i].style.maxWidth = max_width + "rem";
         }
     }
@@ -382,13 +365,11 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     // THIRD SLIDER - (DESCRIPTION)
     let slider_description = document.querySelector("#aasm_controls #slider-description");
     slider_description.value = 1.3;
-    slider_description.oninput = function()
-    {
+    slider_description.oninput = function () {
         // default is 19px
         let asm_iframes = document.querySelectorAll(".busy-content");
 
-        for (let i = 0; i < asm_iframes.length; i++)
-        {
+        for (let i = 0; i < asm_iframes.length; i++) {
             if (!asm_iframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.getElementById(`description_css${i}`)) {
                 // create <style>
                 let description_css = document.createElement('style');
@@ -419,8 +400,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     }
 
     // KEYBOARD SNAP TO
-    function keyboard_lookup(type)
-    {
+    function keyboard_lookup(type) {
         let keypress = prompt(`${type}`, "");
         let activeDocument = document.activeElement.contentWindow.document.activeElement.contentWindow.document
         let cssFoo = ".e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span";
@@ -439,7 +419,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
         }
 
-        let simulateClick = function(element) {
+        let simulateClick = function (element) {
             console.log("trying to click")
             let box = element.getBoundingClientRect(),
                 coordX = box.left + (box.right - box.left) / 2,
@@ -470,8 +450,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             }));
             console.log("click")
         }
-        for (let span of names_listed)
-        {
+        for (let span of names_listed) {
             //console.log(`searching span: ${span.innerText} | [${span.innerText.slice(0, keypress.length).toUpperCase()}] =?= [${keypress.toUpperCase()}]`);
             if (type === 'snap') {
                 if (span.innerText.slice(0, keypress.length).toUpperCase() == keypress.toUpperCase()) {
@@ -505,21 +484,22 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         }
 
         // Construct payload
-        let payload =
-            {
-                'user' : document.getElementById("OFFICER_NAME").value,
-                'time' : Date.now(),
-                'version': AASMVERSION,
-                'scriptengine': scriptEngine,
-                'userstring': navigator.userAgent,
-            };
+        let payload = {
+            'user': document.getElementById("OFFICER_NAME").value,
+            'time': Date.now(),
+            'version': AASMVERSION,
+            'scriptengine': scriptEngine,
+            'userstring': navigator.userAgent,
+        };
 
         GM_xmlhttpRequest({
             method: 'POST',
             url: APIURL,
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json"
+            },
             data: JSON.stringify(payload),
-            onload: function(response) {
+            onload: function (response) {
                 if (AASMVERSION < JSON.parse(response.responseText).version) {
                     document.querySelector("#btn-update").style.display = "block";
                 }
@@ -559,7 +539,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
                 let blob = item.getAsFile();
 
                 let reader = new FileReader();
-                reader.onload = function(event)	{
+                reader.onload = function (event) {
 
                     // grab text area
                     let p = document.activeElement.contentWindow.document.activeElement.querySelector("p table p table").parentNode.previousSibling.previousSibling.previousSibling.previousSibling;
@@ -646,103 +626,153 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         });
     }
 
-    // Reorder tabs with Drag and Drop
+    // Reorder tabs with Drag and Drop API. This API came with HTML5
     // Source: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
     // Some notes:
-    //  * onDragOver() and onDrop() must exist for on any element considered to be a dropzone
-    //  * event.preventDefault(); means prevent the browser's inherit reaction to when something is dropped. Typically it'll try and open(thing_dropped) as though it was a file (That's Firefox's behaviour at least)
+    //  [*] onDragOver() and onDrop() must exist for on an element to be considered a dropzone
+    //  [*] event.preventDefault(); prevents the browser's default reaction to getting something dropped on. Typically
+    //      it'll try and open(thing_dropped) as if it was a file. Well, that's Firefox's behaviour at least.
+    let dragAndDropState = {
+        draggedTab: null, // element: tab being dragged
+        nearestTab: null, // element: neighbouring tab when user 'drops'
+        position: null, // string: [left|right] relative position to neighbour (to the left or right of neighbour)
+        inDropZone: false // boolean: used when user drops in out of bounds area.
+    };
+    let indicationTab = document.createElement("li");
+    indicationTab.setAttribute("class", "tab");
+    indicationTab.setAttribute("id", "aasm-indication-tab");
+    indicationTab.style.backgroundColor = "rgba(0, 150, 220, 0.19)";
+    indicationTab.style.position = "relative";
+    indicationTab.style.pointerEvents = "none";
+
+    function _onDragStart(event) {
+        indicationTab.style.width = event.target.getBoundingClientRect().width;  // set fake, blue tab's width
+        event.dataTransfer.effectAllowed = "move";  // allows 'move' cursor to be set in _onDragOver
+        dragAndDropState.draggedTab = event.target; // save reference to tab being dragges
+        const blankCanvas = document.createElement('canvas');
+        event.dataTransfer.setDragImage(blankCanvas, 0, 0); // remove "ghost image" from cursor
+
+        // Tab being dragged should disappear from view.
+        // Modifying the dom here causes Edge to glitch-out unless wrapped in a setTimeout().
+        // The workaround below is courtesy of: https://stackoverflow.com/a/20734159
+        setTimeout(() => {
+            event.target.parentNode.removeChild(event.target);
+        }, 0);
+        
+        // Edge incorrectly fires _onDragEnd() when hovering over child elements 'w pointer events, like our close-icon [x]
+        // Fix courtesy of: https://stackoverflow.com/a/14027995
+        let children = document.querySelectorAll("li.tab div");
+        for (let c of children) { c.style.pointerEvents = "none"; }
+    };
+
+    function _onDragOver(event) {
+        event.dataTransfer.dropEffect = "move";
+        // Indicate the new position while we drag the tab.
+        // This is done by inserting a fake, blue tab somewhere. To work out where, we find which tab the
+        // mouse is currently nearest to, then figure out which side (left or right). We also store this
+        // information for later, we need it when the user drops a tab, i.e., let's go
+
+        // mouse is nearest to which tab?
+        let nearestTab = null;
+        let tabs = document.querySelectorAll("li[tabindex='1']"); // all tabs that aren't the fake blue one
+        let mouseDistanceMinimum = Number.MAX_SAFE_INTEGER; // arbitrarily large initial condition
+        for (let t of tabs) 
+        {
+            let tabDimensions = t.getBoundingClientRect();
+            let middle = tabDimensions.x + tabDimensions.width / 2; // only x dimension matters.
+            let mouseDistanceFromCurrentTab = Math.abs(event.clientX - middle);
+            if (mouseDistanceFromCurrentTab < mouseDistanceMinimum)
+            {
+                mouseDistanceMinimum = mouseDistanceFromCurrentTab;
+                nearestTab = t;
+            }
+        }
+
+        // mouse to the left or right of nearestTab?
+        let position;
+        let tabDimensions = nearestTab.getBoundingClientRect();
+        let mouseDistanceFromLeft = Math.abs(event.clientX - tabDimensions.left);
+        let mouseDistanceFromRight = Math.abs(event.clientX - tabDimensions.right);
+
+        // insert fake, blue tab
+        if (mouseDistanceFromLeft < mouseDistanceFromRight)
+        {
+            position = "left";
+            nearestTab.insertAdjacentElement('beforebegin', indicationTab);
+        }
+
+        if (mouseDistanceFromRight < mouseDistanceFromLeft) 
+        {
+            position = "right";
+            nearestTab.insertAdjacentElement('afterend', indicationTab);
+        }
+
+        // store position and nearest tab for drop event
+        dragAndDropState.nearestTab = nearestTab;
+        dragAndDropState.position = position;
+        event.preventDefault();
+    };
+
+    function _onDrop(event) {
+        // remove fake, blue tab
+        let e = document.getElementById("aasm-indication-tab");
+        e.parentNode.removeChild(e);
+
+        // insert real tab
+        if (dragAndDropState.position === "left")
+            dragAndDropState.nearestTab.insertAdjacentElement('beforebegin', dragAndDropState.draggedTab);
+
+        if (dragAndDropState.position === "right")
+            dragAndDropState.nearestTab.insertAdjacentElement('afterend', dragAndDropState.draggedTab);
+        
+        // undo Edge hack (makes 'close' icons [x] clickable again)
+        let children = document.querySelectorAll("li.tab div");
+        for (let c of children) { c.style.pointerEvents = "inherit"; }
+        event.preventDefault();
+    };
+
+    function _onDragEnd(event) {
+        // if user let go out of bounds, add tab back to dom and remove fake, blue tab
+        if (!document.body.contains(dragAndDropState.draggedTab)) {
+            document.querySelector("ul.inner-tab-view").appendChild(dragAndDropState.draggedTab);
+            let e = document.getElementById("aasm-indication-tab");
+            e.parentNode.removeChild(e);
+        }
+        // animate tab back into view
+        dragAndDropState.draggedTab.classList.add('animate__animated', 'animate__slideInUp');
+        dragAndDropState.draggedTab.addEventListener("animationend", function _tabAdded(event) {
+            dragAndDropState.draggedTab.classList.remove('animate__animated', 'animate__slideInUp');
+            dragAndDropState.draggedTab.removeEventListener("animationend", _tabAdded);
+        });
+        event.preventDefault();
+    };
+
     function enable_tab_reordering() {
         let tabs = document.querySelectorAll("li.tab");
-        for (let t of tabs) { 
+        for (let t of tabs) {
             t.setAttribute("draggable", "true");
-            t.addEventListener("dragstart", _onDragStart, true);
-            t.addEventListener("dragend", _onDragEnd, true);
-            t.addEventListener("dragover", _onDragOver, true);
-            t.addEventListener("dragleave", _onDragLeave, true);
-            t.addEventListener("drop", _onDrop, true);
+            t.addEventListener("dragend", _onDragEnd);
         }
+        let dropzone = document.querySelector(".outer-tab-view");
+        dropzone.addEventListener("dragstart", _onDragStart);
+        dropzone.addEventListener("dragover", _onDragOver);
+        dropzone.addEventListener("drop", _onDrop);
     };
 
     function disable_tab_reordering() {
+        let dropzone = document.querySelector(".outer-tab-view");
+        dropzone.removeEventListener("dragstart", _onDragStart);
+        dropzone.removeEventListener("dragover", _onDragOver);
+        dropzone.removeEventListener("drop", _onDrop);
         let tabs = document.querySelectorAll("li.tab");
         for (let t of tabs) {
             t.removeAttribute("draggable");
-            t.removeEventListener("dragstart", _onDragStart, true);
-            t.removeEventListener("dragend", _onDragEnd, true);
-            t.removeEventListener("dragover", _onDragOver, true);
-            t.removeEventListener("dragleave", _onDragLeave, true);
-            t.removeEventListener("drop", _onDrop, true);
+            t.removeEventListener("dragend", _onDragEnd);
         }
-    };
-
-    let _onDragStart = function(event) {
-        // set drag image
-        let img = new Image();
-        img.src = 'https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/tab.png';
-        event.dataTransfer.setDragImage(img, 0, 0);
-
-        // write Alemba's tabid to the drag event object (to be plucked out later)
-        event.dataTransfer.setData('text/plain', event.target.getAttribute('tabid'));
-
-        // tab being dragged should disappear
-        // event.target.style.display = 'none';
-        // The above line causes Edge to glitch. Workaround below thanks to: https://stackoverflow.com/a/20734159
-        setTimeout(() => {
-        	event.target.style.display = 'none';
-        }, 0);
-      
-        // The below code is required for Edge because for some reason Edge fires _onDragEnd()
-        // when hovering over child elements (the icon and the close icon [x])
-        // The below dirty Edge hack is from https://stackoverflow.com/a/14027995)
-        let children = document.querySelectorAll("li.tab div");
-        for (let c of children) {
-          c.style.pointerEvents = "none";
-        }
-    };
-
-    let _onDragEnd = function(event) {
-        // animate tab back
-        event.currentTarget.classList.add('animate__animated', 'animate__slideInUp');
-        event.currentTarget.style.display = '';
-        event.target.onanimationend = (event) => {
-            event.currentTarget.classList.remove('animate__animated', 'animate__slideInUp');
-        };
-    };
-  
-    let _onDragOver = function(event) {
-        // indicate new position
-        event.currentTarget.style.borderLeft = '2rem solid yellow';
-        event.preventDefault();
-    };
-
-    let _onDragLeave = function(event) {
-        // cancel indication
-        event.currentTarget.style.borderLeft = '';
-        event.preventDefault();
-    };
-        
-    let _onDrop = function(event) {
-        // current.target is now the tab being dropped onto. This is why we
-        // stored Alemba's "tabid" attribute value in the Event object
-        const tabId = event.dataTransfer.getData('text/plain');
-        const tabDragged = document.querySelector(`li[tabid='${tabId}']`);
-        const tabDroppedOnto = event.currentTarget;
-        tabDroppedOnto.style.borderLeft = ''; // because onDragExit() never happened
-        tabDroppedOnto.insertAdjacentElement('beforebegin', tabDragged);
-      
-        // remove dirty Edge hack to ensure 'close' icon [x] is clickable again
-        let children = document.querySelectorAll("li.tab div");
-        for (let c of children) {
-          c.style.pointerEvents = "inherit";
-        }
-        
-        event.preventDefault();
-        event.dataTransfer.clearData();
     };
 
     // DAEMON
-    function augmented_asm_daemon()
-    {
+    function augmented_asm_daemon() {
         // advertise update
         advertise_update();
 
@@ -759,20 +789,19 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         try { aasmPaste(); } catch { null; }
 
         // apply snap and search buttons
-        try { add_magnifying_glass(); } catch {null;}
+        try { add_magnifying_glass(); } catch { null; }
 
         // apply fire button (clear search)
-        try { add_fire(); } catch {null;}
+        try { add_fire(); } catch { null; }
 
         // apply tab reordering
-        enable_tab_reordering();
+        try { enable_tab_reordering(); } catch { null; }
+
     }
 
     augmented_asm_daemon();
-    setInterval(function(){
+    setInterval(function () {
         augmented_asm_daemon()
     }, 500)
 
-
 })();
-
