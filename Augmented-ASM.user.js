@@ -510,20 +510,21 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
     // Advertise update if one if available (display === "block" when update available -see log_usage() function)
     function advertise_update() {
-        // daemon hits this often so return if not necessary
-        if (document.querySelector("#btn-update").style.display === "none") {
+        let btn = document.querySelector("#btn-update");
+        if (btn.style.display === "none")
             return;
-        }
 
-        // now wobble the update button every so often
-        let rand = Math.floor(Math.random() * 10);
-        if (rand % 10 === 0) {
-            document.querySelector("#btn-update").classList.remove('animate__animated', 'animate__rubberBand');
-            setTimeout(() => {
-                document.querySelector("#btn-update").classList.add('animate__animated', 'animate__rubberBand');
-            }, 2000);
-        }
-    }
+        // now wobble the update button every n milliseconds
+        setInterval(function wobble() {
+            btn.style.visibility = "none";
+            btn.classList.add('animate__animated', 'animate__rubberBand');
+            btn.style.visibility = "";
+            btn.addEventListener("animationend", function _wobbleFinished(event) {
+                btn.classList.remove('animate__animated', 'animate__rubberBand');
+                btn.removeEventListener("animationend", _wobbleFinished);
+            });
+        }, 30000); // 5 minutes
+    };
 
     // PASTE IMG INTO EMAIL
     function aasmPaste() {
@@ -658,7 +659,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         setTimeout(() => {
             event.target.parentNode.removeChild(event.target);
         }, 0);
-        
+
         // Edge incorrectly fires _onDragEnd() when hovering over child elements 'w pointer events, like our close-icon [x]
         // Fix courtesy of: https://stackoverflow.com/a/14027995
         let children = document.querySelectorAll("li.tab div");
@@ -676,7 +677,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         let nearestTab = null;
         let tabs = document.querySelectorAll("li[tabindex='1']"); // all tabs that aren't the fake blue one
         let mouseDistanceMinimum = Number.MAX_SAFE_INTEGER; // arbitrarily large initial condition
-        for (let t of tabs) 
+        for (let t of tabs)
         {
             let tabDimensions = t.getBoundingClientRect();
             let middle = tabDimensions.x + tabDimensions.width / 2; // only x dimension matters.
@@ -701,7 +702,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             nearestTab.insertAdjacentElement('beforebegin', indicationTab);
         }
 
-        if (mouseDistanceFromRight < mouseDistanceFromLeft) 
+        if (mouseDistanceFromRight < mouseDistanceFromLeft)
         {
             position = "right";
             nearestTab.insertAdjacentElement('afterend', indicationTab);
@@ -724,7 +725,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
         if (dragAndDropState.position === "right")
             dragAndDropState.nearestTab.insertAdjacentElement('afterend', dragAndDropState.draggedTab);
-        
+
         // undo Edge hack (makes 'close' icons [x] clickable again)
         let children = document.querySelectorAll("li.tab div");
         for (let c of children) { c.style.pointerEvents = "inherit"; }
@@ -773,11 +774,9 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
     // DAEMON
     function augmented_asm_daemon() {
-        // advertise update
-        advertise_update();
-
         // `Augment` button off? Go no further
-        if (!augment_flag) {
+        if (!augment_flag)
+        {
             disable_tab_reordering();
             return;
         };
@@ -796,12 +795,13 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
         // apply tab reordering
         try { enable_tab_reordering(); } catch { null; }
-
     }
+
+    // advertise update
+    advertise_update();
 
     augmented_asm_daemon();
     setInterval(function () {
         augmented_asm_daemon()
     }, 500)
-
 })();
