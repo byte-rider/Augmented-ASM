@@ -12,9 +12,9 @@
 // @connect      samsara-nc
 // ==/UserScript==
 
-// debugger;
+debugger;
 
-const AASMVERSION = 1.4;
+const AASMVERSION = "1.41";
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -89,47 +89,6 @@ const cssControls = `
 
 `;
 
-/* Styles for the so-called "readability mode". It'll be wrapped
-in <style> tags and injected at various locations because Alemba
-use iframes for tabs. !important unfortunately required as Alemba
-make use of them all over the shop */
-const cssReadabilityMode = `
-/* Makes fields easier to read */
-.Field[readonly], INPUT[disabled], .Field-Dropdown[disabled]{
-  color: black !important;
-  border-color: black !important;
-}
-
-input.form-control[disabled] {
-  opacity: 1 !important;
-}
-
-div[readonlyisreadonly] > label {
-	color: inherit;
-}
-
-input.readonly, .search-control .search-control-input.readonly, .tiered-list-container .input-group > input.form-control, input[id*="TELEPHONE"][readonly] + a.telephon {
-  border-color: black !important;
-}
-
-
-/* Increase height of list (when forarding a ticket) */
-.Explorer {
- height: 70vh;
-}
-
-/* Increase height of "Service" popup box */
-.search-control .search-control-output-table {
-	max-height: 70vh;
-}
-
-/* Increase height of "Type" popup box */
-.tiered-list-container .list-container {
-     max-height: none;
-}
-
-`;
-
 (function () {
     'use strict';
 
@@ -151,7 +110,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
       </div>
       <div class="aasm-flex-item">
         <input id="slider-maxwidth" class="slider" type="range" min="0" max="1.0" step="0.025">
-        <div class="slider-label">tab-minwidth</div>
+        <div class="slider-label">tab-maxwidth</div>
       </div>
       <div class="aasm-flex-item">
         <input id="slider-description" class="slider" type="range" min="1.3" max="7.0" step="0.05">
@@ -199,38 +158,44 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     // BUTTON AUGMENT
     let augment_flag = false;
     document.querySelector("#btn-augment").addEventListener("click", augment);
-
     function augment() {
-
-        // turn augments on
+        let btn = document.querySelector("#btn-augment");
+       // turn augments on
         if (!augment_flag) {
             //wastedSpace(true);
             navbarFix(true);
-            readabilityMode(true);
+            readability_mode(true);
+            try {
+            } catch {null}
         }
 
         // turn augments off
         if (augment_flag) {
             //wastedSpace(false);
             navbarFix(false);
-            readabilityMode(false);
+            readability_mode(false);
+            try {
+            } catch {null}
         }
 
         // change button accordingly
-        (augment_flag) ? document.querySelector("#btn-augment").classList.remove("aasm-button-active"): document.querySelector("#btn-augment").classList.add("aasm-button-active");
+        (augment_flag) ? btn.classList.remove("aasm-button-active"): btn.classList.add("aasm-button-active");
 
         // toggle flag
         augment_flag = ~augment_flag;
-    }
+    };
 
     // Turn on initially
     augment();
 
     // BUTTON RESET TO DEFAULT
     document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
-
     function setDefault() {
+        // toggle buttons if they're on.
+        (augment_flag) ? augment(): null;
+
         // reset 1st slider (tab content size)
+        slider_contents.value = 1.5;
         let tabs = document.querySelectorAll(".tab");
         let tabs_icon = document.querySelectorAll(".tab-label-image");
         let tabs_text = document.querySelectorAll(".tab-label-text");
@@ -245,18 +210,16 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             tabs_close[i].style.height = "16px";
         }
 
+
         // reset 2nd slider (tab width)
+        slider_maxwidth.value = 0.5;
         for (let i = 0; i < tabs_text.length; i++) {
             tabs_text[i].style.maxWidth = "200px";
         }
 
         // reset third slider (description)
         slider_description.value = 1;
-        slider_description.oninput();
-
-
-        // toggle buttons if they're on.
-        (augment_flag) ? augment(): null;
+        adjust_row_height();
     }
 
     // BUTTON ABOUT
@@ -275,10 +238,12 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
 
 
     // WASTED SPACE
+    /*
     function wastedSpace(toggleOn) {
         let e = document.querySelector(".outer-tab-view");
         (toggleOn) ? e.style.marginLeft = "0rem": e.style.marginLeft = "20px";
     }
+    */
 
     // NAVBAR FIX
     function navbarFix(toggleOn) {
@@ -287,62 +252,82 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     }
 
     // READABILITY MODE
-    function readabilityMode(toggleOn) {
-        function action(bool_apply_or_remove) {
-            // ASM deliver tabbed content through iFrames. We must iterate through them all
-            // and append our own <style> tag in each frame, ensuring all tabs are re-styled.
-            // This allows us to undo by removing each <style> tag appropriately.
-            let asm_iframes = document.querySelectorAll(".busy-content");
+    // <style> element
+    let readability_mode_css = document.createElement('style');
+    readability_mode_css.setAttribute("id", "readability_mode_css");
+    readability_mode_css.innerHTML = `
+    /* Makes fields easier to read */
+    .Field[readonly], INPUT[disabled], .Field-Dropdown[disabled]{
+    color: black !important;
+    border-color: black !important;
+    }
 
+    input.form-control[disabled] {
+    opacity: 1 !important;
+    }
+
+    div[readonlyisreadonly] > label {
+        color: inherit;
+    }
+
+    input.readonly, .search-control .search-control-input.readonly, .tiered-list-container .input-group > input.form-control, input[id*="TELEPHONE"][readonly] + a.telephon {
+    border-color: black !important;
+    }
+
+
+    /* Increase height of list (when forarding a ticket) */
+    .Explorer {
+    height: 70vh;
+    }
+
+    /* Increase height of "Service" popup box */
+    .search-control .search-control-output-table {
+        max-height: 70vh;
+    }
+
+    /* Increase height of "Type" popup box */
+    .tiered-list-container .list-container {
+        max-height: none;
+    }
+    `;
+    function readability_mode(toggle) {
+        // ASM deliver tabbed content through iFrames. We must iterate through them all
+        // and append our own <style> tag in each frame, ensuring all tabs are re-styled.
+        // This allows us to undo by removing each <style> tag appropriately.
+        let iFrames = document.querySelectorAll(".busy-content");
+        let iDocument;
+        
+        for (let iFrame of iFrames) {
+            // Try to grab any open tickets that need styling
+            try {iDocument = iFrame.contentWindow.document.querySelector("#Main").contentWindow.document}
+            catch { continue; }
+            
             // APPLY
-            if (bool_apply_or_remove) {
-                for (let i = 0; i < asm_iframes.length; i++) {
-                    try {
-                        if (!asm_iframes[i].contentWindow.document.querySelector("#Main").contentWindow.document.getElementById(`readability_mode_css${i}`)) {
-                            // create <style>
-                            let readability_mode_css = document.createElement('style');
-                            readability_mode_css.type = "text/css";
-                            readability_mode_css.setAttribute("id", `readability_mode_css${i}`);
-                            readability_mode_css.innerHTML = cssReadabilityMode;
-
-                            try // try to inject <style>
-                            {
-                                asm_iframes[i].contentWindow.document.querySelector("#Main").contentWindow.document.body.appendChild(readability_mode_css);
-                            } catch (err) {
-                                // nothing to do
-                            }
-                        }
-                    } catch (err) {
-                        // nothing to do
-                    }
+            if (toggle) {
+                if (!iDocument.contains(iDocument.getElementById("readability_mode_css"))) {
+                    let clone = readability_mode_css.cloneNode(true);
+                    iDocument.body.appendChild(clone); // inject <style>
                 }
             }
-
+    
             // REMOVE
-            if (!bool_apply_or_remove) {
-                for (let i = 0; i < asm_iframes.length; i++) {
-                    try // try to delete <style> from iframe context
-                    {
-                        asm_iframes[i].contentWindow.document.querySelector("#Main").contentWindow.document.getElementById(`readability_mode_css${i}`).remove();
-                        console.log(asm_iframes[i]);
-                    } catch (err) {
-                        // console.log(`asm_iframes[${i}] is not the iframe we're looking for.`);
-                    }
+            if (!toggle) {
+                if (iDocument.contains(iDocument.getElementById("readability_mode_css")))
+                    iDocument.getElementById("readability_mode_css").remove(); // remove <style>
                 }
-            }
         }
-        readabilityMode.action = action;
-        (toggleOn) ? action(true): action(false);
     }
 
     // FIRST SLIDER - (SIZE OF TAB CONTENTS)
     let slider_contents = document.querySelector("#aasm_controls #slider-contents");
-    slider_contents.oninput = function () {
+    slider_contents.addEventListener("input", adjust_tab_content_size);
+    function adjust_tab_content_size() 
+    {
         let tabs = document.querySelectorAll(".tab");
         let tabs_icon = document.querySelectorAll(".tab-label-image");
         let tabs_text = document.querySelectorAll(".tab-label-text");
         let tabs_close = document.querySelectorAll(".tab-label-close");
-        for (let i = 0; i < tabs_text.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
             tabs_icon[i].style.width = slider_contents.value + "rem";
             tabs_icon[i].style.height = slider_contents.value + "rem";
             tabs_text[i].style.fontSize = slider_contents.value + "rem";
@@ -351,21 +336,25 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
             tabs_close[i].style.width = slider_contents.value + "rem";
             tabs_close[i].style.height = slider_contents.value + "rem";
         }
-    }
+    };
+
     // SECOND SLIDER - (TAB MAX-WIDTH)
     let slider_maxwidth = document.querySelector("#aasm_controls #slider-maxwidth");
-    slider_maxwidth.oninput = function () {
+    slider_maxwidth.addEventListener("input", adjust_tab_width)
+    function adjust_tab_width()
+    {
         let tabs_text = document.querySelectorAll(".tab-label-text");
         let max_width = 50 * slider_maxwidth.value;
-        for (let i = 0; i < tabs_text.length; i++) {
-            tabs_text[i].style.maxWidth = max_width + "rem";
-        }
+        for (let t of tabs_text)
+            t.style.maxWidth = `${max_width}rem`;
     }
 
     // THIRD SLIDER - (DESCRIPTION)
     let slider_description = document.querySelector("#aasm_controls #slider-description");
     slider_description.value = 1.3;
-    slider_description.oninput = function () {
+    slider_description.addEventListener("input", adjust_row_height)
+    function adjust_row_height()
+    {
         // default is 19px
         let asm_iframes = document.querySelectorAll(".busy-content");
 
@@ -378,14 +367,14 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
                 description_css.innerHTML = "";
                 asm_iframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.body.appendChild(description_css);
             }
-
+            
             if (slider_description.value != 1.3) {
                 asm_iframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.getElementById(`description_css${i}`).innerHTML = `
                 .e-rowcell .string-container {
-                  max-height: ${slider_description.value}rem;
+                    max-height: ${slider_description.value}rem;
                 }
                 .e-row {
-                  outline: 1px solid;
+                    outline: 1px solid;
                 }`
             } else {
                 asm_iframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.getElementById(`description_css${i}`).innerHTML = `
@@ -393,13 +382,48 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
                   max-height: ${slider_description.value}rem;
                 }
                 .e-row {
-                  outline: none;
+                    outline: none;
                 }`
             }
         }
     }
-
+    
     // KEYBOARD SNAP TO
+    // Snap and Search (magnifying glass)
+    function add_finger_and_search_icons() {
+        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#SPAN_IN_OFFICERS_")) {
+            return;
+        }
+        // Insert buttons if not already there
+        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-searchto")) {
+
+            // create buttons
+            let btn1 = document.createElement("div");
+            btn1.setAttribute("id", "aasm-snapto");
+            btn1.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
+            btn1.innerHTML = '👇 snap';
+
+            let btn2 = document.createElement("div");
+            btn2.setAttribute("id", "aasm-searchto");
+            btn2.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
+            btn2.innerHTML = '🔍 find';
+
+            // flex container
+            let wrapper = document.createElement("div");
+            wrapper.setAttribute("style", "display: flex;");
+            wrapper.appendChild(btn1);
+            wrapper.appendChild(btn2);
+
+            // insert into dom
+            let div = document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector('table tr td div');
+            div.parentNode.insertBefore(wrapper, div.nextSibling);
+
+            // add event listeners
+            btn1.addEventListener("click", () => keyboard_lookup('snap'));
+            btn2.addEventListener("click", () => keyboard_lookup('find'));
+        }
+    }
+
     function keyboard_lookup(type) {
         let keypress = prompt(`${type}`, "");
         let activeDocument = document.activeElement.contentWindow.document.activeElement.contentWindow.document
@@ -407,17 +431,14 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         let cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
         let names_listed = null;
 
-        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;") {
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;")
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_ ${cssFoo}`);
-        }
 
-        if (activeDocument.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;") {
+        if (activeDocument.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;")
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_GROUPS_ ${cssFooGroups}`);
-        }
 
-        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;") {
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;")
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
-        }
 
         let simulateClick = function (element) {
             console.log("trying to click")
@@ -527,7 +548,7 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
     };
 
     // PASTE IMG INTO EMAIL
-    function aasmPaste() {
+    function enable_paste_image() {
         // daemon will hit this often so return immediately if we're not in a rich text editor
         if (document.activeElement.contentWindow.document.activeElement.getAttribute("id").search('richtexteditor') === -1) {
             return;
@@ -560,52 +581,16 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         }
     };
 
-    // Snap and Search (magnifying glass)
-    function add_magnifying_glass() {
-        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#SPAN_IN_OFFICERS_")) {
-            return;
-        }
-        // Insert buttons if not already there
-        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-searchto")) {
-
-            // create buttons
-            let btn1 = document.createElement("div");
-            btn1.setAttribute("id", "aasm-snapto");
-            btn1.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
-            btn1.innerHTML = '👇 snap';
-
-            let btn2 = document.createElement("div");
-            btn2.setAttribute("id", "aasm-searchto");
-            btn2.setAttribute("style", "margin-right: 2rem; cursor: pointer;");
-            btn2.innerHTML = '🔍 find';
-
-            // flex container
-            let wrapper = document.createElement("div");
-            wrapper.setAttribute("style", "display: flex;");
-            wrapper.appendChild(btn1);
-            wrapper.appendChild(btn2);
-
-            // insert into dom
-            let div = document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector('table tr td div');
-            div.parentNode.insertBefore(wrapper, div.nextSibling);
-
-            // add event listeners
-            btn1.addEventListener("click", () => keyboard_lookup('snap'));
-            btn2.addEventListener("click", () => keyboard_lookup('find'));
-        }
-    }
 
     // Clear search (fire)
     function add_fire() {
         // daemon will hit this often so return if we're not in the right spot
-        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire")) {
+        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire"))
             return;
-        }
 
         // return if fire has already been added
-        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire")) {
+        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire"))
             return;
-        }
 
         // add fire element
         let fire = document.createElement("div");
@@ -777,18 +762,24 @@ input.readonly, .search-control .search-control-input.readonly, .tiered-list-con
         // `Augment` button off? Go no further
         if (!augment_flag)
         {
-            disable_tab_reordering();
+            try {disable_tab_reordering()} catch {null}
             return;
         };
 
         // apply readability mode for any new tabs.
-        readabilityMode.action(true);
+        readability_mode(true);
+
+        // apply sliders to any new tabs
+        try { adjust_tab_content_size(); } catch { null; }
+        try { adjust_tab_width(); } catch { null; }
+        try { adjust_row_height(); } catch { null; }
+
 
         // apply enable pasting into emails.
-        try { aasmPaste(); } catch { null; }
+        try { enable_paste_image(); } catch { null; }
 
         // apply snap and search buttons
-        try { add_magnifying_glass(); } catch { null; }
+        try { add_finger_and_search_icons(); } catch { null; }
 
         // apply fire button (clear search)
         try { add_fire(); } catch { null; }
