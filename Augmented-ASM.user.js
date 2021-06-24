@@ -127,9 +127,56 @@ const cssControls = `
 
     // INJECT AASM-CSS
     let styleElementAASM = document.createElement('style');
-    styleElementAASM.type = "text/css";
     styleElementAASM.innerHTML = cssControls;
     (document.head || document.documentElement).appendChild(styleElementAASM);
+
+    // DARK MODE
+    // STUB
+    let linkDarkMode = document.createElement('link');
+    linkDarkMode.id = "dark_mode";
+    linkDarkMode.type = "text/css";
+    linkDarkMode.rel = "stylesheet";
+    linkDarkMode.href = "http://localhost:8080/static/dark-mode.css"
+
+    function darkMode(apply) {
+        // main document
+
+        // Remove Alemba linear-gradient
+        (apply) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = "background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;";
+
+        // APPLY
+        if (apply && !document.contains(document.getElementById("dark_mode")))
+            document.head.appendChild(linkDarkMode.cloneNode(true))
+        
+        // REMOVE
+        if (!apply && document.contains(document.getElementById("dark_mode")))
+            document.getElementById("dark_mode").remove(); // remove <style>
+
+        // Go deeper
+        let iFrames = document.querySelectorAll(".busy-content");
+        for (let iFrame of iFrames) {
+            // APPLY
+            if (apply && !iFrame.contentWindow.document.contains(iFrame.contentWindow.document.getElementById("dark_mode")))
+                iFrame.contentWindow.document.head.appendChild(linkDarkMode.cloneNode(true));
+            
+            // REMOVE
+            if (!apply && iFrame.contentWindow.document.contains(iFrame.contentWindow.document.getElementById("dark_mode")))
+                iFrame.contentWindow.document.getElementById("dark_mode").remove();
+
+            // Go deeper
+            let frames = iFrame.contentWindow.document.querySelectorAll("frame");
+            for (let f of frames) {
+                // APPLY
+                if (apply && !f.contentWindow.document.contains(f.contentWindow.document.getElementById("dark_mode")))
+                    f.contentWindow.document.head.appendChild(linkDarkMode.cloneNode(true)); // inject <style>
+        
+                // REMOVE
+                if (!apply && f.contentWindow.document.contains(f.contentWindow.document.getElementById("dark_mode")))
+                    f.contentWindow.document.getElementById("dark_mode").remove(); // remove <style>
+            }
+        }
+    }
+
 
     // INJECT ANIMATION CSS LIBRARY (https://animate.style/)
     let animate = document.createElement('link');

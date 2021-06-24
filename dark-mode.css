@@ -1,0 +1,142 @@
+:root {
+    --background1: black;
+    --background2: #1d1d1d;
+    --background3: #444444;
+    --background4: #888888;
+    --background5: #cccccc;
+    --tint: #4a004a;
+    --text-darker: darkgrey;
+    --text: lightgrey;
+    --text-disabled: darkslategrey;
+}
+
+body {
+    background-color: var(--background1);
+    color: var(--text);
+}
+
+/* TOOLBAR */
+#AlembaToolbar {
+/*  default background-image is set to element itself and therefore removed with js:
+      document.querySelector("nav").style = "";   */
+    background-image: linear-gradient(var(--tint), var(--background1));
+}
+
+/* TAB'S NAVBAR BACKGROUND */
+#PageBody {
+    background-color: var(--background1);
+}
+
+/* TABS: NOT SELECTED */
+div:not(.iwpart-section-client) .inner-tab-view > .tab {
+    background-color: var(--background1);
+}
+
+/* TAB IN FOCUS (WHEN INITIALLY CLICKED) */
+div:not(.iwpart-section-client) .inner-tab-view > .tab:focus {
+    background-color: var(--background3);
+}
+
+/* TAB SELECTED */
+div:not(.iwpart-section-client) .inner-tab-view > .tab.active {
+    background-color: var(--background2);
+    color: var(--text);
+}
+
+/* TAB SELECTED ACCENT ON TOP */
+div:not(.iwpart-section-client) .inner-tab-view > .tab.active::before {
+    background-color: white;
+    border: 0px solid white;
+}
+
+
+/* TABS' ACTIVE AREA */
+html,
+.tab-content-container > .tab-content,
+.tab-content-container > .tab-content.active {
+    background-color: var(--background2);
+}
+
+/* MAIN COLUMN'S TITLES */
+.iwz-TitleHeader h1,
+.Layout-Container-Full::before {
+    background-color: var(--tint) !important;
+    border-radius: 0 0 0 0;
+}
+
+/* MAIN COLUMN'S BODY */
+.search-table-container, .scroll-panel-container, .Layout-Container-Full > .Size-Full, .iwz-Toolbar + .iwtype-section-static:last-child {
+    background-color: var(--background1);
+    border: 1px solid var(--text);
+}
+
+/* LEFT COLUMN'S INNER WINDOW */
+.Layout-Container-Full .iwtype-section-static, .Layout-Container-Full .iwtype-section-static-heading, .Layout-Container-Full .iwtype-section-expand, .Layout-Container-Full .iwtype-section-tabs, .Layout-Container-Full .iwtype-section-tabsWithin, .Layout-Container-Full .iwtype-section-tabsInner, .Layout-Container-Full .Size-Full {
+    border-top-color: var(--text);
+}
+
+/* LEFT COLUMN ROW ENTRIES */
+.NavButBar {
+    background-color: var(--background3);
+    color: white;
+}
+.NavButBar:hover {
+    background-color: var(--tint);
+}
+.NavButBarActive {
+    background: var(--tint);
+}
+.NavButBarDisabled {
+    background-color: var(--background2);
+}
+
+/* LEFT COLUMN LABELS */
+LABEL {
+    color: var(--text)
+}
+
+/* LEFT COLUMN SEARCH BOX */
+.search-control input {
+    background-color: var(--background1)
+}
+
+/* LEFT COLUMN DROP DOWN */
+.Field-Dropdown {
+    background-color: var(--background3);
+    color: white !important;
+}
+
+/* RIGHT COLUMN BACKGROUND (BEHIND THE ROWS, IE, WHEN THERE ARE NO ROWS/ENTRIES YOU CAN SEE IT) */
+.e-grid .e-content {
+    background-color: var(--background3)
+}
+
+/* RIGHT COLUMN HEADER */
+.e-grid .e-columnheader,
+.e-grid .e-headercell {
+    background-color: var(--background2);
+    color: var(--text);
+}
+
+/* RIGHT COLUMN - ROW ENTRY - BACKGROUND */
+.e-grid.e-gridhover tr[role='row']:not(.e-editedrow) {
+    background-color: var(--background2);
+}
+/* RIGHT COLUMN - ROW ENTRY - BACKGROUND - ALT ENTRY */
+.e-grid.e-gridhover tr[role='row'].e-altrow:not(.e-editedrow) {
+    background-color: var(--background1);
+}
+/* RIGHT COLUMN - ROW ENTRY - TEXT */
+.e-grid .e-rowcell:not(.e-editedbatchcell) {
+    color: var(--text);
+}
+/* RIGHT COLUMN - ROW ENTRY:HOVER */
+.e-grid.e-gridhover tr[role='row']:not(.e-editedrow):hover,
+.e-grid.e-gridhover tr[role='row']:not(.e-editedrow):hover td {
+    background-color: var(--tint);
+    color: white !important;
+}
+/* RIGHT COLUMN - ROW ENTRY:ACTIVE/SELECTED */
+.e-grid td.e-active {
+    background-color: var(--tint);
+}
