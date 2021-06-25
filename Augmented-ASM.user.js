@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.4
+// @version      1.42
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -14,7 +14,7 @@
 
 debugger;
 
-const AASMVERSION = "1.41";
+const AASMVERSION = "1.42";
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -481,7 +481,7 @@ const cssControls = `
                 }
             }
 
-            if (type === 'search') {
+            if (type === 'find') {
                 if (span.innerText.toUpperCase().includes(keypress.toUpperCase())) {
                     simulateClick(span);
                     span.scrollIntoView();
