@@ -4,7 +4,7 @@
     --background3: #444444;
     --background4: #888888;
     --background5: #cccccc;
-    --tint: #4a004a;
+    /* --tint: #4a004a; */
     --text-darker: darkgrey;
     --text: lightgrey;
     --text-lighter: #eeeeee;
@@ -301,8 +301,8 @@ a.control-expand, a.control-expand:visited {
 /* CALL - ROW BACKGROUND */
 .HistSectionRepeat TD,
 .HistSectionDesc TD {
-    background-color: var(--background3);
-    border-top: 1px solid var(--background1);
+    background-color: var(--background1);
+    border-top: 1px solid var(--background5);
 }
 
 /* CALL - ROW LINKS */
@@ -456,4 +456,80 @@ LABEL.info-Label,
 /* -------------------------- POPUPS ------------------- */
 BODY.popup .iwz-Main-Content-Popup-Script {
     background-color: var(--background2);
+}
+
+/* --------------------------------- */
+/* Haven't done it yet? Go to ImS On ThE WeB */
+/* The below won't work because it's default style is applied on the element tag itself. */
+/* document.querySelector("#MAIN_CONTENT > div.Section-Size-Large").style=""; */
+.Section-Size-Large {
+    background-color: var(--background4);
+}
+
+/* email text from within ticket history view */
+tbody.HistSectionDesc span[name="HTML_DYNAMIC_PROBLEM_DESC_HTML"] p,
+table.HistOutputTable tbody[name="HTML_GENERATE_CALLHISTORYDETAILS"] P {
+    color: var(--text);
+}
+
+/* email buttons (To, CC, etc) */
+.Buttons-Page, .But-Pg-Large, .But-Pg-Minor, .Buttons-Page-Medium, .Buttons-Page-Big, .Buttons-Page-Strong, .Buttons-Page-Cancel, .But-Pg-Small, .But-Pg, .txtButton-Object, .But-Pg-1Col, .But-Pg-2Cols, .But-Pg-3Cols, .But-Pg-Dropdown {
+    background-color: var(--tint) !important;
+    border: 1px solid var(--tint) !important;
+    box-shadow: inset 0 1px 0 0 var(--text);
+}
+.Buttons-Page:focus, .But-Pg-Large:focus, .But-Pg-Minor:focus, .Buttons-Page-Medium:focus, .Buttons-Page-Big:focus, .Buttons-Page-Strong:focus, .Buttons-Page-Cancel:focus, .But-Pg-Small:focus, .But-Pg:focus, .txtButton-Object:focus, .But-Pg-1Col:focus, .But-Pg-2Cols:focus, .But-Pg-3Cols:focus, .But-Pg-Dropdown:focus, .Buttons-Page:hover, .But-Pg-Large:hover, .But-Pg-Minor:hover, .Buttons-Page-Medium:hover, .Buttons-Page-Big:hover, .Buttons-Page-Strong:hover, .Buttons-Page-Cancel:hover, .But-Pg-Small:hover, .But-Pg:hover, .txtButton-Object:hover, .But-Pg-1Col:hover, .But-Pg-2Cols:hover, .But-Pg-3Cols:hover, .But-Pg-Dropdown:hover {
+    background-color: var(--background5) !important;
+    color: black !important;
+}
+
+/* email body outer */
+richtext-editor-actual#EMAIL_BODY_HTML_EDITOR div[iwtype="Messaging-section-richtext"] table table table td,
+richtext-editor-actual#EMAIL_BODY_HTML_EDITOR div[iwtype="Messaging-section-richtext"] table table table td p,
+richtext-editor-actual#EMAIL_BODY_HTML_EDITOR div[iwtype="Messaging-section-richtext"] table td {
+    background-color: var(--background2);
+    color: var(--text);
+}
+
+/* email body inner*/
+richtext-editor-actual#EMAIL_BODY_HTML_EDITOR div[iwtype="Messaging-section-richtext"] table table table table td,
+richtext-editor-actual#EMAIL_BODY_HTML_EDITOR div[iwtype="Messaging-section-richtext"] table table table table td p {
+    background-color: var(--background5);
+    color: black
+}
+
+/* popup filters: headers */
+.e-contextmenu-wrapper ul,
+.e-contextmenu-wrapper ul .e-disabled {
+    background-color: var(--background5);
+    color: black;
+    border-bottom: 1px solid black;
+}
+
+/* popup filters: text */
+.e-dialog.e-popup .e-dlg-content .e-ftrchk span {
+    color: white;
+}
+
+/* popup filters: background */
+.e-dialog.e-popup .e-dlg-content {
+    background-color: var(--background3);
+}
+/* popup filters: hover over item */
+.e-checkboxlist.e-fields .e-ftrchk:hover,
+.e-checkboxlist.e-fields .e-ftrchk:hover span {
+    background-color: var(--tint);
+    color: white;
+}
+
+/* popup filters: checkbox */
+.e-checkbox-wrapper .e-frame.e-check,
+.e-css.e-checkbox-wrapper .e-frame.e-check,
+.e-css.e-checkbox-wrapper .e-frame.e-uncheck {
+    background-color: var(--tint);
+}
+
+/* popup filters: side sub-menu */
+.e-contextmenu-wrapper ul.e-contextmenu li.e-menu-item.e-focused {
+    background-color: var(--tint);
 }

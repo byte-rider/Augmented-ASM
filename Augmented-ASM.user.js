@@ -89,6 +89,7 @@ const cssControls = `
 
 `;
 
+
 (function () {
     'use strict';
 
@@ -100,6 +101,8 @@ const cssControls = `
       <div class="aasm-flex-item">
         <button id="btn-hide" class="aasm-button">hide</button>
         <button id="btn-augment" class="aasm-button">augment</button>
+        <button id="btn-dark-mode" class="aasm-button">dark</button>
+        <input id="colour-picker" type="color" value="#4a004a">
         <button id="btn-default" class="aasm-button">default</button>
         <button id="btn-about" class="aasm-button">about</button>
         <button id="btn-update" class="aasm-button">update</button>
@@ -129,54 +132,6 @@ const cssControls = `
     let styleElementAASM = document.createElement('style');
     styleElementAASM.innerHTML = cssControls;
     (document.head || document.documentElement).appendChild(styleElementAASM);
-
-    // DARK MODE
-    // STUB
-    let linkDarkMode = document.createElement('link');
-    linkDarkMode.id = "dark_mode";
-    linkDarkMode.type = "text/css";
-    linkDarkMode.rel = "stylesheet";
-    linkDarkMode.href = "http://localhost:8080/static/dark-mode.css"
-
-    function darkMode(apply) {
-        // main document
-
-        // Remove Alemba linear-gradient
-        (apply) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = "background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;";
-
-        // APPLY
-        if (apply && !document.contains(document.getElementById("dark_mode")))
-            document.head.appendChild(linkDarkMode.cloneNode(true))
-        
-        // REMOVE
-        if (!apply && document.contains(document.getElementById("dark_mode")))
-            document.getElementById("dark_mode").remove(); // remove <style>
-
-        // Go deeper
-        let iFrames = document.querySelectorAll(".busy-content");
-        for (let iFrame of iFrames) {
-            // APPLY
-            if (apply && !iFrame.contentWindow.document.contains(iFrame.contentWindow.document.getElementById("dark_mode")))
-                iFrame.contentWindow.document.head.appendChild(linkDarkMode.cloneNode(true));
-            
-            // REMOVE
-            if (!apply && iFrame.contentWindow.document.contains(iFrame.contentWindow.document.getElementById("dark_mode")))
-                iFrame.contentWindow.document.getElementById("dark_mode").remove();
-
-            // Go deeper
-            let frames = iFrame.contentWindow.document.querySelectorAll("frame");
-            for (let f of frames) {
-                // APPLY
-                if (apply && !f.contentWindow.document.contains(f.contentWindow.document.getElementById("dark_mode")))
-                    f.contentWindow.document.head.appendChild(linkDarkMode.cloneNode(true)); // inject <style>
-        
-                // REMOVE
-                if (!apply && f.contentWindow.document.contains(f.contentWindow.document.getElementById("dark_mode")))
-                    f.contentWindow.document.getElementById("dark_mode").remove(); // remove <style>
-            }
-        }
-    }
-
 
     // INJECT ANIMATION CSS LIBRARY (https://animate.style/)
     let animate = document.createElement('link');
@@ -234,6 +189,178 @@ const cssControls = `
 
     // Turn on initially
     augment();
+
+    // ---------------------------
+    //            DARK MODE
+    // -------------------------------------------------------------
+    let dark_mode_flag = false;
+    let darkModeTintStyle = document.createElement('style');
+    darkModeTintStyle.id = "dark_mode_tint";
+    darkModeTintStyle.innerHTML = `:root {--tint: ${document.getElementById("colour-picker").value};}`;
+
+    let darkModeElement = document.createElement('link');
+    darkModeElement.id = "dark_mode";
+    darkModeElement.type = "text/css";
+    darkModeElement.rel = "stylesheet";
+    darkModeElement.href = "http://localhost:8080/static/dark-mode.css"
+
+    document.querySelector("#btn-dark-mode").addEventListener("click", () => {
+        dark_mode_flag = ~dark_mode_flag;
+        changeCSS(dark_mode_flag);
+        changeTint(dark_mode_flag);
+    });
+
+    document.querySelector("#colour-picker").addEventListener("input", (event) => {
+        darkModeTintStyle.innerHTML =  `:root {--tint: ${event.target.value};}`;
+        if (dark_mode_flag) {
+            changeTint(false);
+            changeTint(true);
+        }
+    });
+    
+    function changeTint(enable) {
+        // Remove Alemba linear-gradient
+        (enable) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
+
+        if (enable) {
+            // add <style>
+            if (!document.contains(document.getElementById("dark_mode_tint"))) {
+                document.head.lastElementChild.insertAdjacentElement('beforebegin', darkModeTintStyle.cloneNode(true))
+            }
+        }
+
+        // remove
+        if (!enable) {
+            if (document.contains(document.getElementById("dark_mode_tint"))) {
+                document.getElementById("dark_mode_tint").remove();
+            }
+        }
+
+        // go deeper
+        let iFrames = document.querySelectorAll(".busy-content");
+        for (let iFrame of iFrames) {
+            let doc = iFrame.contentWindow.document;
+
+            if (enable) {
+                // add tint
+                if (!doc.contains(doc.getElementById("dark_mode_tint"))) {
+                    doc.head.lastElementChild.insertAdjacentElement('beforebegin', darkModeTintStyle.cloneNode(true))
+                }
+            } 
+
+            // REMOVE
+            if (!enable) {
+                if (doc.contains(doc.getElementById("dark_mode_tint"))) {
+                    doc.getElementById("dark_mode_tint").remove();
+                }
+            }
+
+            // go deeper
+            let frames = iFrame.contentWindow.document.querySelectorAll("frame");
+            for (let f of frames) {
+                let d = f.contentWindow.document;
+
+                if (enable) {
+                    // add tint
+                    if (!d.contains(d.getElementById("dark_mode_tint"))) {
+                        d.head.lastElementChild.insertAdjacentElement('beforebegin', darkModeTintStyle.cloneNode(true))
+                    }
+                } 
+                if (!enable) {
+                    if (d.contains(d.getElementById("dark_mode_tint"))) {
+                        d.getElementById("dark_mode_tint").remove();
+                    }
+                } 
+            }
+        }
+    }
+    function changeCSS(enable) {
+        let timer = 500;
+        // main document
+
+        // apply
+        if (enable) {
+            // add <link>
+            if (!document.contains(document.getElementById("dark_mode"))) {
+                document.head.appendChild(darkModeElement.cloneNode(true))
+            }
+            // <link> not last
+            if (document.contains(document.getElementById("dark_mode")) && document.getElementById("dark_mode").nextSibling != null) {
+                setTimeout(() => {
+                    if (document.getElementById("dark_mode").nextSibling === null) {
+                        return;
+                    }
+                    document.getElementById("dark_mode").remove();
+                    document.head.appendChild(darkModeElement.cloneNode(true))
+                }, timer)
+            }
+        }
+
+        // remove
+        if (!enable) {
+            if (document.contains(document.getElementById("dark_mode"))) {
+                document.getElementById("dark_mode").remove(); // remove <style>
+            }
+        }
+
+        // go deeper
+        let iFrames = document.querySelectorAll(".busy-content");
+        for (let iFrame of iFrames) {
+            let doc = iFrame.contentWindow.document;
+
+            if (enable) {
+                // add css
+                if (!doc.contains(doc.getElementById("dark_mode"))) {
+                    doc.head.appendChild(darkModeElement.cloneNode(true));
+                }
+                // move css down
+                if (doc.contains(doc.getElementById("dark_mode")) && doc.getElementById("dark_mode").nextSibling != null) {
+                    setTimeout(() => {
+                        if (doc.getElementById("dark_mode").nextSibling === null) {
+                            return;
+                        }
+                        doc.getElementById("dark_mode").remove();
+                        doc.head.appendChild(darkModeElement.cloneNode(true))
+                    }, timer)
+                }
+            } 
+
+            // REMOVE
+            if (!enable) {
+                if (doc.contains(doc.getElementById("dark_mode"))) {
+                    doc.getElementById("dark_mode").remove();
+                }
+            }
+
+            // go deeper
+            let frames = iFrame.contentWindow.document.querySelectorAll("frame");
+            for (let f of frames) {
+                let d = f.contentWindow.document;
+
+                if (enable) {
+                    // add css
+                    if (!d.contains(d.getElementById("dark_mode"))) {
+                        d.head.appendChild(darkModeElement.cloneNode(true));
+                    }
+                    // move css down
+                    if (d.contains(d.getElementById("dark_mode")) && d.getElementById("dark_mode").nextSibling != null) {
+                        setTimeout(() => {
+                            if (d.getElementById("dark_mode").nextSibling === null) {
+                                return;
+                            }
+                            d.getElementById("dark_mode").remove();
+                            d.head.appendChild(darkModeElement.cloneNode(true))
+                        }, timer)
+                    }
+                } 
+                if (!enable) {
+                    if (d.contains(d.getElementById("dark_mode"))) {
+                        d.getElementById("dark_mode").remove();
+                    }
+                } 
+            }
+        }
+    }
 
     // BUTTON RESET TO DEFAULT
     document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
@@ -806,6 +933,11 @@ const cssControls = `
 
     // DAEMON
     function augmented_asm_daemon() {
+        if (dark_mode_flag) {
+            changeCSS(true);
+            changeTint(true);
+        }
+
         // `Augment` button off? Go no further
         if (!augment_flag)
         {
