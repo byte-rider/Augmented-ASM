@@ -7,11 +7,11 @@
     --tint: #4a004a;
     --text-darker: darkgrey;
     --text: lightgrey;
-    --text-disabled: darkslategrey;
+    --text-lighter: #eeeeee;
 }
 
 body {
-    background-color: var(--background1);
+    background-color: var(--background3);
     color: var(--text);
 }
 
@@ -49,6 +49,8 @@ div:not(.iwpart-section-client) .inner-tab-view > .tab.active::before {
     border: 0px solid white;
 }
 
+/* ------------------ BOTTOM HALF ------------------ */
+/* ------------------ CALLS / TASKS ------------------ */
 
 /* TABS' ACTIVE AREA */
 html,
@@ -97,7 +99,8 @@ LABEL {
 
 /* LEFT COLUMN SEARCH BOX */
 .search-control input {
-    background-color: var(--background1)
+    background-color: var(--background4);
+    color: black !important;
 }
 
 /* LEFT COLUMN DROP DOWN */
@@ -118,18 +121,29 @@ LABEL {
     color: var(--text);
 }
 
-/* RIGHT COLUMN - ROW ENTRY - BACKGROUND */
+/* RIGHT COLUMN HEADER SORTING ICON (ASCENDING/DESCENDING ICON) */
+.e-grid .e-gridheader .e-icons:not(.e-icon-hide):not(.e-check):not(.e-stop) {
+    color: var(--text); 
+}
+
+/* RIGHT COLUMN - ROW - BACKGROUND */
 .e-grid.e-gridhover tr[role='row']:not(.e-editedrow) {
     background-color: var(--background2);
 }
-/* RIGHT COLUMN - ROW ENTRY - BACKGROUND - ALT ENTRY */
+/* RIGHT COLUMN - ROW - BACKGROUND - ALT ENTRY */
 .e-grid.e-gridhover tr[role='row'].e-altrow:not(.e-editedrow) {
     background-color: var(--background1);
 }
-/* RIGHT COLUMN - ROW ENTRY - TEXT */
+/* RIGHT COLUMN - ROW - TEXT */
 .e-grid .e-rowcell:not(.e-editedbatchcell) {
     color: var(--text);
 }
+
+/* RIGHT COLUMN - ROW - SEPARATOR LINE */
+.e-row {
+    outline: 1px solid var(--background3);
+}
+
 /* RIGHT COLUMN - ROW ENTRY:HOVER */
 .e-grid.e-gridhover tr[role='row']:not(.e-editedrow):hover,
 .e-grid.e-gridhover tr[role='row']:not(.e-editedrow):hover td {
@@ -139,4 +153,307 @@ LABEL {
 /* RIGHT COLUMN - ROW ENTRY:ACTIVE/SELECTED */
 .e-grid td.e-active {
     background-color: var(--tint);
+}
+
+/* ------------------ INCIDENT ------------------ */
+
+/* HEADERS / BANNERS */
+.ExplorerWindow .iwpart-section-header,
+.iwpart-section-header-plain, 
+.MatchingPanel .iwpart-section-header, 
+.iwpart-info_panel-section-header,
+.iwz-TitleHeader h1,
+.Layout-Container-Details:before,
+.info_panel-section-client > .iwtype-section-tabs #TAB_INFOPANEL.rel-tab-active {
+    background-color: var(--tint) !important;
+}
+
+/* LINK - BACKGROUND */
+.ExplorerWindow .iwpart-section-client {
+    background-color: var(--background2);
+}
+
+/* LINK - BACKGROUND BOTTOM (REQUIRES "LINK - MENU ROOT OPTIONS" BELOW) */
+.iwpart-section-client .tab-content-container > .tab-content.active {
+    background-color: var(--background3);
+}
+
+/* LINK - MENU ROOT OPTIONS */
+#Explorer > div > div.tab-content-container > div.tab-content.active > div > ul {
+    background-color: var(--background5);
+}
+
+/* LINK - MENU ROOT BORDER */
+.alembaNavigationTreeView.e-treeview > .e-ul > .e-list-item {
+    border-bottom: 1px solid var(--background3);
+}
+
+/* LINK - MENU CHILDREN - BACKGROUND COLOR */
+.alembaNavigationTreeView.e-treeview .e-ul .e-ul {
+    background-color: var(--background4);
+}
+
+/* LINK - MENU CHILDREN - SEPARATOR */
+.alembaNavigationTreeView.e-treeview .e-ul .e-ul li {
+    border-bottom: none;
+}
+
+/* LINK - MENU CHILDREN - TEXT */
+.alembaNavigationTreeView.e-treeview .e-ul .e-ul li span {
+    color: black;
+}
+
+/* LINK - MENU CHILDREN - HOVER */
+.alembaNavigationTreeView.e-treeview li.e-hover,
+.e-treeview .e-list-item.e-hover > .e-text-content .e-list-text,
+.alembaNavigationTreeView.e-treeview li.e-hover > .e-fullrow {
+    background-color: var(--tint);
+    color: var(--text);
+    border-color: var(--background1) !important;
+}
+
+/* LINK - MENU CHILDREN - ACTIVE */
+.alembaNavigationTreeView.e-treeview li.e-active .e-text-content .e-list-text,
+.alembaNavigationTreeView.e-treeview li.e-active.e-hover .e-text-content .e-list-text {
+    color: var(--text);
+}
+
+/* LINK - SELECTED - LEFT-FLARE */
+.alembaNavigationTreeView.e-treeview li.e-active > .e-fullrow,
+.alembaNavigationTreeView.e-treeview li.e-active.e-hover > .e-fullrow {
+    border-color: var(--background1) !important;
+    background-color: var(--tint);
+}
+
+/* LINK - SLM - SPECIAL BLUE OVERRIDE */
+.highlighted > .e-text-content span,
+.highlighted > .e-text-content .e-icon-expandable::before, 
+.highlighted > .e-text-content .e-icon-collapsible::before {
+    color: black !important;
+}
+
+/* LINK - SPECIAL BLUE DOT */
+.alembaNavigationTreeView.e-treeview li .e-list-img {
+    display: none;
+}
+
+/* LINKS - TAB - SELECTED */
+.iwpart-section-client .tab-container .inner-tab-view > .tab.active,
+.iwpart-section-client .tab-container .inner-tab-view > .tab:focus {
+    background-color: var(--background5);
+    color: black;
+}
+
+/* LINKS - TAB - NOT-SELECTED */
+.iwpart-section-client .tab-container .inner-tab-view > .tab {
+    background-color: var(--background3);
+    color: var(--text);
+}
+
+/* ---------------SERVICE WINDOW --------------- */
+
+/* SERVICE WINDOW */
+#Sectin-ServiceWindowPlain {
+    background: var(--background3);
+}
+
+/* SERVICE WINDOW - GROUP DROPDOWN (SLA) */
+#Sectin-ServiceWindowPlain .iwpart-info-section-header,
+a.control-expand, a.control-expand:visited {
+    background: var(--background3);
+    color: var(--text);
+}
+/* SERVICE WINDOW - GROUP DROPDOWN (SLA) - BUTTONS ON RHS */
+#Sectin-ServiceWindowPlain .iwpart-info-section-header .control-buttons input {
+    opacity: 1;
+}
+
+/* SERVICE WINDOW - SLA: TABLE HEADER (TITLE / REMAINING) */
+.iwtype-DataTable th,
+#Sectin-ServiceWindowPlain .iwtype-DataTable th {
+/*     background: var(--background3); */
+    background-color: var(--background3);
+    border-top: none;
+    border: 1px solid var(--background1);
+    color: var(--text);
+}
+
+/* SERVICE WINDOW - SLA: TABLE DATA */
+.iwtype-DataTable td {
+    background: var(--background5);
+    border: 1px solid var(--background3);
+}
+
+/* SERVICE WINDOW - FOOTER */
+#Sectin-ServiceWindowPlain .iwz-InlineActions-Plain-Right, #Sectin-ServiceWindowPlain .iwz-InlineActions-Plain {
+    background-color: var(--background3);
+    border-top: 0px solid var(--background3);
+}
+
+/* ---------------------- CALL ------------------- */
+
+/* CALL - NULL SPACE */
+.Layout-Container-Full {
+    background-color: var(--background1);
+    border: 1px solid var(--background3);
+}
+
+/* CALL - ROW BACKGROUND */
+.HistSectionRepeat TD,
+.HistSectionDesc TD {
+    background-color: var(--background3);
+    border-top: 1px solid var(--background1);
+}
+
+/* CALL - ROW LINKS */
+.HistSectionRepeat TD A {
+    color: lightblue;
+}
+
+/* CALL - ROW TEXT */
+.HistSectionRepeat .HistHeaderRow TD,
+.HistSectionRepeat .HistHeaderRow H3,
+.HistHeaderRow H2, .HistHeaderRow H3,
+.HistSectionRepeat TD, .HistSectionDesc TD,
+.HistSectionDesc TD.HistPerson, 
+.HistSectionDesc TD.HistDate {
+    color: var(--text-darker) !important;
+}
+
+/* INCIDENT - NULL SPACE */
+.Layout-Container-Details {
+    background-color: var(--background2);
+    border: 1px solid var(--background3);
+}
+
+/* INCIDENT MAIN FIELDS (MOST) */
+.Layout-Container-Details .Content-Bground-Flow,
+.iwtype-section-static,
+.iwtype-section-static-heading,
+.iwtype-section-expand,
+.iwtype-section-tabs,
+.iwtype-section-tabs-expand,
+.iwtype-section-tabsWithin,
+.iwtype-section-tabsInner {
+    background-color: var(--background2);
+}
+
+/* INCIDENT MAIN FIELDS (MORE) */
+.Field, 
+.Field-QD, 
+.Field-QD-Multi,
+.Field-Dropdown,
+.FieldsNumeric,
+.FieldsNumericHr,
+.FieldsNumericMin,
+.FieldNumeric,
+.FieldNumericSelect,
+.FieldNumericHr,
+.FieldNumericMin {
+    background-color: var(--background4)
+}
+
+/* INCIDENT MAIN FIELD "TYPE" */
+#PROBLEMTYPE_REF_COMPOSITE > div > div > div > div > input,
+.tiered-list-container .input-group {
+    background-color: var(--background4);
+    color: black !important;
+    opacity: 1.0;
+}
+
+/* INCIDENT MAIN FIELD "PHONE" */
+input[id*="TELEPHONE"] + a.telephone {
+    background-color: var(--background4);
+    color: black;
+}
+
+/* INCIDENT MAIN FIELDS TEXT */
+.Field[readonly], .Field-QD[readonly], .Field-QD-Multi[readonly], .Field-Dropdown[readonly], .FieldsNumeric[readonly], .FieldsNumericHr[readonly], .FieldsNumericMin[readonly], .FieldNumeric[readonly], .FieldNumericSelect[readonly], .FieldNumericHr[readonly], .FieldNumericMin[readonly], .Field[disabled], .Field-QD[disabled], .Field-QD-Multi[disabled], .Field-Dropdown[disabled], .FieldsNumeric[disabled], .FieldsNumericHr[disabled], .FieldsNumericMin[disabled], .FieldNumeric[disabled], .FieldNumericSelect[disabled], .FieldNumericHr[disabled], .FieldNumericMin[disabled] {
+    color: black !important;
+}
+
+/* INCIDENT Description/History/Actions & Solutions ----- */
+/* Main background - INCIDENT - DESCRIPTION/HISTORY/ACTION */
+.iwpart-section-header {
+    background-color: var(--background2);
+}
+/* Uneccessary line - INCIDENT - DESCRIPTION/HISTORY/ACTION*/
+.iwtype-section-tabs {
+    border-top: 0px solid;
+}
+
+
+/* Active Tab - INCIDENT - DESCRIPTION/HISTORY/ACTION */
+.rel-tabs li.rel-tab-active,
+div[iwtype="section-tab-body"],
+.rel-tabs li.rel-tab-active a {
+    background-color: var(--background4);
+    border: 0px solid;
+    color: black;
+}
+
+/* Inactive TAB - INCIDENT - DESCRIPTION/HISTORY/ACTION */
+.rel-tabs li.rel-tab,
+.rel-tabs li.rel-tab a {
+    background-color: var(--background5);
+    color: black;
+    border: 0px solid;
+}
+
+/*  CENTER TEXT AREA */
+.e-richtexteditor .e-rte-content .e-content,
+.RichText .e-richtexteditor .e-rte-content {
+    background-color: var(--background3);
+    border: 0px solid;
+    color: var(--text);
+}
+
+/* HISTORY ENTRIES - INCIDENT - DESCRIPTION/HISTORY/ACTION */
+.HistOutputTablePage TD {
+    background-color: var(--background3);
+    color: var(--text);
+    
+}
+.HistOutputTablePage .HistHeaderRow TD {
+    border-top: 1px solid var(--text-darker);
+    border-bottom: 1px solid var(--text-darker);
+}
+
+/* "Visible in self service portal" */
+input[type="checkbox"][disabled] + label {
+    color: var(--text-lighter);
+}
+
+/* --------------------------- INFO PANEL ---------------------------- */
+
+/* Info Panel Null Space */
+.iwz-Info-Main-Content {
+    background-color: var(--background3)
+}
+
+/* Heading background override - Info Panel */
+li#TAB_INFOPANEL a {
+    background-color: initial;
+}
+
+/* Root Menu Items Info panel */
+.iwpart-info-section-header,
+.iwtype-info-section-expand {
+    background-color: var(--background3);
+    border-top: 0px solid;
+}
+
+/* children rows - Info Panel */
+.iwpart-info-section-client,
+LABEL.info-Label,
+.info-Value,
+.iwpart-info-section-client div[readonlyisreadonly] > label
+{
+    background-color: var(--background4);
+    color: black;
+}
+
+/* -------------------------- POPUPS ------------------- */
+BODY.popup .iwz-Main-Content-Popup-Script {
+    background-color: var(--background2);
 }
