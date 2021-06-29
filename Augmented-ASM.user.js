@@ -208,7 +208,7 @@ const cssControls = `
     darkModeElement.id = "dark_mode";
     darkModeElement.type = "text/css";
     darkModeElement.rel = "stylesheet";
-    darkModeElement.href = "http://localhost:8080/static/dark-mode.css"
+    darkModeElement.href = "https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/dark_mode/dark-mode.css"
 
     document.querySelector("#btn-dark-mode").addEventListener("click", _dark_mode);
     function _dark_mode(event) {
