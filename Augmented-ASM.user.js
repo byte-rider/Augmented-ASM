@@ -8,8 +8,11 @@
 // @run-at       document-end
 // @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
-// @grant        GM_xmlhttpRequest
+// @resource      DARK_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/dark-mode.css
 // @connect      samsara-nc
+// @grant        GM_xmlhttpRequest
+// @grant        GM_getResourceText
+// @grant        GM_addStyle
 // ==/UserScript==
 
 // debugger;
@@ -204,32 +207,29 @@ const cssControls = `
     darkModeTintStyle.id = "dark_mode_tint";
     darkModeTintStyle.innerHTML = `:root {--tint: ${document.getElementById("colour-picker").value};}`;
 
-    let darkModeElement = document.createElement('link');
+    let dark_mode_raw_css = GM_getResourceText("DARK_MODE_CSS");
+    let darkModeElement = GM_addStyle(dark_mode_raw_css);
     darkModeElement.id = "dark_mode";
-    darkModeElement.type = "text/css";
-    darkModeElement.rel = "stylesheet";
-    darkModeElement.href = "https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/dark-mode.css"
+    document.getElementById("dark_mode").remove();
 
     document.querySelector("#btn-dark-mode").addEventListener("click", _dark_mode);
     function _dark_mode(event) {
         dark_mode_flag = ~dark_mode_flag;
-        
         // Change Alemba's banner; they have it on the Element itself for some reason meaning no CSS could've changed it
         (dark_mode_flag) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
         (dark_mode_flag) ? document.getElementById("btn-dark-mode").classList.add("aasm-button-active") : document.getElementById("btn-dark-mode").classList.remove("aasm-button-active");
         recursively_touch_dom(dark_mode_flag, darkModeElement, window.top.frames);
         recursively_touch_dom(dark_mode_flag, darkModeTintStyle, window.top.frames);
     }
-    
+
     document.querySelector("#colour-picker").addEventListener("input", (event) => {
-        darkModeTintStyle.innerHTML =  `:root {--tint: ${event.target.value};}`;
+        darkModeTintStyle.innerHTML = `:root {--tint: ${event.target.value};}`;
         if (dark_mode_flag) {
             recursively_touch_dom(false, darkModeTintStyle, window.top.frames);
             recursively_touch_dom(true, darkModeTintStyle, window.top.frames);
         }
     });
-    
-    
+
     function recursively_touch_dom(add, element, frames) {
         // add element
         if (add) { 
@@ -241,9 +241,9 @@ const cssControls = `
                 }
             }
         }
-        
+
         // remove element
-        if (!add) { 
+        if (!add) {
             if (frames.document.contains(frames.document.getElementById(`${element.id}`))) {
                 frames.document.getElementById(`${element.id}`).remove();
             }
@@ -382,12 +382,12 @@ const cssControls = `
         // This allows us to undo by removing each <style> tag appropriately.
         let iFrames = document.querySelectorAll(".busy-content");
         let iDocument;
-        
+
         for (let iFrame of iFrames) {
             // Try to grab any open tickets that need styling
             try {iDocument = iFrame.contentWindow.document.querySelector("#Main").contentWindow.document}
             catch { continue; }
-            
+
             // APPLY
             if (toggle) {
                 if (!iDocument.contains(iDocument.getElementById("readability_mode_css"))) {
@@ -395,7 +395,7 @@ const cssControls = `
                     iDocument.body.appendChild(clone); // inject <style>
                 }
             }
-    
+
             // REMOVE
             if (!toggle) {
                 if (iDocument.contains(iDocument.getElementById("readability_mode_css")))
@@ -453,7 +453,7 @@ const cssControls = `
                 description_css.innerHTML = "";
                 asm_iframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.body.appendChild(description_css);
             }
-            
+
             if (slider_description.value != 1.3) {
                 asm_iframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.getElementById(`description_css${i}`).innerHTML = `
                 .e-rowcell .string-container {
@@ -473,7 +473,7 @@ const cssControls = `
             }
         }
     }
-    
+
     // KEYBOARD SNAP TO
     // Snap and Search (magnifying glass)
     function add_finger_and_search_icons() {
@@ -717,8 +717,8 @@ const cssControls = `
     indicationTab.style.pointerEvents = "none";
 
     function _onDragStart(event) {
-        indicationTab.style.width = event.target.getBoundingClientRect().width;  // set fake, blue tab's width
-        event.dataTransfer.effectAllowed = "move";  // allows 'move' cursor to be set in _onDragOver
+        indicationTab.style.width = event.target.getBoundingClientRect().width; // set fake, blue tab's width
+        event.dataTransfer.effectAllowed = "move"; // allows 'move' cursor to be set in _onDragOver
         dragAndDropState.draggedTab = event.target; // save reference to tab being dragges
         const blankCanvas = document.createElement('canvas');
         event.dataTransfer.setDragImage(blankCanvas, 0, 0); // remove "ghost image" from cursor
