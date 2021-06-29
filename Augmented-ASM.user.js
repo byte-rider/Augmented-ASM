@@ -8,7 +8,7 @@
 // @run-at       document-end
 // @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
-// @resource      DARK_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/dark-mode.css
+// @resource     DARK_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/dark-mode.css
 // @connect      samsara-nc
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getResourceText
