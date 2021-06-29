@@ -5,10 +5,13 @@ const fs = require('fs');
 const dns = require('dns');
 const app = express();
 const PORT = 8080;
-const VERSION = 1.4;
+const VERSION = 1.42;
 
 app.use( express.json() ); // load json middleware
-app.use('/static', express.static('./') ); // serve local files (used to "@require" the script within Tampermonkey; enables me to edit the file in an IDE)
+
+// express.static() to serve local files. This is used to "@require" the script within Tampermonkey, allowing me to use VSCode
+// the second argument {etag: false} is to disable client-side caching.
+app.use('/static', express.static('./', {etag: false}) );
 
 app.listen(PORT, () => console.log(`running on port ${PORT}`))
 
@@ -24,7 +27,7 @@ function reverse_DNS_lookup(ip) {
 };
 
 app.post('/wave-hello', (req, res) => {
-    // load
+    // load database into memory
     let logData = JSON.parse(fs.readFileSync(filenameLog));
     let logDataUnique = JSON.parse(fs.readFileSync(filenameLogUnique));
     let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress; // get incoming IP from request headers
@@ -39,7 +42,7 @@ app.post('/wave-hello', (req, res) => {
         })
 
         .finally(n => {
-            if (req.body.user === "Edwards, George")
+            if (req.body.user === "Edwards, George") // discard me otherwise log fills up when testing
                 return;
             logData.users.push(req.body);
             fs.writeFileSync(filenameLog, JSON.stringify(logData, null, 2));
