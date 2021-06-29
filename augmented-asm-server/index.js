@@ -5,7 +5,7 @@ const fs = require('fs');
 const dns = require('dns');
 const app = express();
 const PORT = 8080;
-const VERSION = 1.42;
+const VERSION = 1.50;
 
 app.use( express.json() ); // load json middleware
 
