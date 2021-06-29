@@ -12,7 +12,7 @@
 // @connect      samsara-nc
 // ==/UserScript==
 
-debugger;
+// debugger;
 
 const AASMVERSION = "1.5";
 
@@ -60,6 +60,10 @@ const cssControls = `
   color: #4d4d4d;
 }
 
+#colour-picker {
+    margin-right: 1rem;
+}
+
 .aasm-flex-item {
   display: flex;
   margin: 0.25rem 0 0.25rem 1rem;
@@ -81,7 +85,7 @@ const cssControls = `
 .aasmwatermark {
     position: absolute;
     left: 44rem;
-    top: 3rem;
+    top: 4.3rem;
     font-size: 3.5rem;
     opacity: 0.2;
     font-family: 'Caveat', cursive;
@@ -102,7 +106,7 @@ const cssControls = `
         <button id="btn-hide" class="aasm-button">hide</button>
         <button id="btn-augment" class="aasm-button">augment</button>
         <button id="btn-dark-mode" class="aasm-button">dark</button>
-        <input id="colour-picker" type="color" value="#4a004a">
+        <input id="colour-picker" type="color" value="#29002E">
         <button id="btn-default" class="aasm-button">default</button>
         <button id="btn-about" class="aasm-button">about</button>
         <button id="btn-update" class="aasm-button">update</button>
@@ -194,6 +198,8 @@ const cssControls = `
     //            DARK MODE
     // -------------------------------------------------------------
     let dark_mode_flag = false;
+    let semaphore = true; // used in async calls when sending css <link> down end of <head> in the dom to avoid flickering
+    let interval = 500; // milliseconds to wait before sending css <link> down end of <head> in the dom to avoid flickering
     let darkModeTintStyle = document.createElement('style');
     darkModeTintStyle.id = "dark_mode_tint";
     darkModeTintStyle.innerHTML = `:root {--tint: ${document.getElementById("colour-picker").value};}`;
@@ -204,169 +210,75 @@ const cssControls = `
     darkModeElement.rel = "stylesheet";
     darkModeElement.href = "http://localhost:8080/static/dark-mode.css"
 
-    document.querySelector("#btn-dark-mode").addEventListener("click", () => {
+    document.querySelector("#btn-dark-mode").addEventListener("click", _dark_mode);
+    function _dark_mode(event) {
         dark_mode_flag = ~dark_mode_flag;
-        changeCSS(dark_mode_flag);
-        changeTint(dark_mode_flag);
-    });
-
+        
+        // Change Alemba's banner; they have it on the Element itself for some reason meaning no CSS could've changed it
+        (dark_mode_flag) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
+        (dark_mode_flag) ? document.getElementById("btn-dark-mode").classList.add("aasm-button-active") : document.getElementById("btn-dark-mode").classList.remove("aasm-button-active");
+        recursively_touch_dom(dark_mode_flag, darkModeElement, window.top.frames);
+        recursively_touch_dom(dark_mode_flag, darkModeTintStyle, window.top.frames);
+    }
+    
     document.querySelector("#colour-picker").addEventListener("input", (event) => {
         darkModeTintStyle.innerHTML =  `:root {--tint: ${event.target.value};}`;
         if (dark_mode_flag) {
-            changeTint(false);
-            changeTint(true);
+            recursively_touch_dom(false, darkModeTintStyle, window.top.frames);
+            recursively_touch_dom(true, darkModeTintStyle, window.top.frames);
         }
     });
     
-    function changeTint(enable) {
-        // Remove Alemba linear-gradient
-        (enable) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
-
-        if (enable) {
-            // add <style>
-            if (!document.contains(document.getElementById("dark_mode_tint"))) {
-                document.head.lastElementChild.insertAdjacentElement('beforebegin', darkModeTintStyle.cloneNode(true))
-            }
-        }
-
-        // remove
-        if (!enable) {
-            if (document.contains(document.getElementById("dark_mode_tint"))) {
-                document.getElementById("dark_mode_tint").remove();
-            }
-        }
-
-        // go deeper
-        let iFrames = document.querySelectorAll(".busy-content");
-        for (let iFrame of iFrames) {
-            let doc = iFrame.contentWindow.document;
-
-            if (enable) {
-                // add tint
-                if (!doc.contains(doc.getElementById("dark_mode_tint"))) {
-                    doc.head.lastElementChild.insertAdjacentElement('beforebegin', darkModeTintStyle.cloneNode(true))
-                }
-            } 
-
-            // REMOVE
-            if (!enable) {
-                if (doc.contains(doc.getElementById("dark_mode_tint"))) {
-                    doc.getElementById("dark_mode_tint").remove();
+    
+    function recursively_touch_dom(add, element, frames) {
+        // add element
+        if (add) { 
+            if (!frames.document.contains(frames.document.getElementById(`${element.id}`))) {
+                if (frames.document.head.lastElementChild === null) { // if <head> is empty, place at end
+                    frames.document.head.append(element.cloneNode(true));
+                } else { // place second-last
+                    frames.document.head.lastElementChild.insertAdjacentElement('beforebegin', element.cloneNode(true));
                 }
             }
-
-            // go deeper
-            let frames = iFrame.contentWindow.document.querySelectorAll("frame");
-            for (let f of frames) {
-                let d = f.contentWindow.document;
-
-                if (enable) {
-                    // add tint
-                    if (!d.contains(d.getElementById("dark_mode_tint"))) {
-                        d.head.lastElementChild.insertAdjacentElement('beforebegin', darkModeTintStyle.cloneNode(true))
-                    }
-                } 
-                if (!enable) {
-                    if (d.contains(d.getElementById("dark_mode_tint"))) {
-                        d.getElementById("dark_mode_tint").remove();
-                    }
-                } 
-            }
         }
-    }
-    function changeCSS(enable) {
-        let timer = 500;
-        // main document
-
-        // apply
-        if (enable) {
-            // add <link>
-            if (!document.contains(document.getElementById("dark_mode"))) {
-                document.head.appendChild(darkModeElement.cloneNode(true))
-            }
-            // <link> not last
-            if (document.contains(document.getElementById("dark_mode")) && document.getElementById("dark_mode").nextSibling != null) {
-                setTimeout(() => {
-                    if (document.getElementById("dark_mode").nextSibling === null) {
-                        return;
-                    }
-                    document.getElementById("dark_mode").remove();
-                    document.head.appendChild(darkModeElement.cloneNode(true))
-                }, timer)
+        
+        // remove element
+        if (!add) { 
+            if (frames.document.contains(frames.document.getElementById(`${element.id}`))) {
+                frames.document.getElementById(`${element.id}`).remove();
             }
         }
 
-        // remove
-        if (!enable) {
-            if (document.contains(document.getElementById("dark_mode"))) {
-                document.getElementById("dark_mode").remove(); // remove <style>
-            }
-        }
-
-        // go deeper
-        let iFrames = document.querySelectorAll(".busy-content");
-        for (let iFrame of iFrames) {
-            let doc = iFrame.contentWindow.document;
-
-            if (enable) {
-                // add css
-                if (!doc.contains(doc.getElementById("dark_mode"))) {
-                    doc.head.appendChild(darkModeElement.cloneNode(true));
-                }
-                // move css down
-                if (doc.contains(doc.getElementById("dark_mode")) && doc.getElementById("dark_mode").nextSibling != null) {
+        // cascade dark mode (sends <link> down the nodes in <head>)
+            if (add && element.id === "dark_mode" && frames.document.getElementById("dark_mode").nextSibling != null) {
+                if (semaphore) {
+                    semaphore = false;
                     setTimeout(() => {
-                        if (doc.getElementById("dark_mode").nextSibling === null) {
-                            return;
-                        }
-                        doc.getElementById("dark_mode").remove();
-                        doc.head.appendChild(darkModeElement.cloneNode(true))
-                    }, timer)
-                }
-            } 
-
-            // REMOVE
-            if (!enable) {
-                if (doc.contains(doc.getElementById("dark_mode"))) {
-                    doc.getElementById("dark_mode").remove();
+                        semaphore = true;
+                        frames.document.head.appendChild(frames.document.getElementById("dark_mode"));
+                    }, interval);
                 }
             }
 
-            // go deeper
-            let frames = iFrame.contentWindow.document.querySelectorAll("frame");
-            for (let f of frames) {
-                let d = f.contentWindow.document;
-
-                if (enable) {
-                    // add css
-                    if (!d.contains(d.getElementById("dark_mode"))) {
-                        d.head.appendChild(darkModeElement.cloneNode(true));
-                    }
-                    // move css down
-                    if (d.contains(d.getElementById("dark_mode")) && d.getElementById("dark_mode").nextSibling != null) {
-                        setTimeout(() => {
-                            if (d.getElementById("dark_mode").nextSibling === null) {
-                                return;
-                            }
-                            d.getElementById("dark_mode").remove();
-                            d.head.appendChild(darkModeElement.cloneNode(true))
-                        }, timer)
-                    }
-                } 
-                if (!enable) {
-                    if (d.contains(d.getElementById("dark_mode"))) {
-                        d.getElementById("dark_mode").remove();
-                    }
-                } 
-            }
+        // stop recursion if at leaf.
+        if (frames.length === 0) {
+            return;
+        }
+        // Douglas Hofstadter, baby
+        for (let i = 0; i < frames.length; i++) {
+            recursively_touch_dom(add, element, frames[i]);
         }
     }
 
     // BUTTON RESET TO DEFAULT
     document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
-    function setDefault() {
+    function setDefault()
+    {
         // toggle buttons if they're on.
         (augment_flag) ? augment(): null;
+
+        // toggle darkmode if it's on
+        (dark_mode_flag) ? _dark_mode() : null;
 
         // reset 1st slider (tab content size)
         slider_contents.value = 1.5;
@@ -742,7 +654,6 @@ const cssControls = `
 
                     // create image
                     let img = document.createElement("img");
-                    //img.setAttribute("id", "PastedIMG");
 
                     // insert after element.
                     p.parentNode.insertBefore(img, p.nextSibling);
@@ -934,8 +845,8 @@ const cssControls = `
     // DAEMON
     function augmented_asm_daemon() {
         if (dark_mode_flag) {
-            changeCSS(true);
-            changeTint(true);
+            recursively_touch_dom(true, darkModeTintStyle, window.top.frames);
+            recursively_touch_dom(true, darkModeElement, window.top.frames);
         }
 
         // `Augment` button off? Go no further

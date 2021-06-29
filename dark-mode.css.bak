@@ -10,7 +10,7 @@
     --text-lighter: #eeeeee;
 }
 
-html body {
+body {
     background-color: var(--background3);
     color: var(--text);
 }
@@ -94,7 +94,7 @@ html,
 
 /* LEFT COLUMN LABELS */
 LABEL {
-    color: var(--text) !important;
+    color: var(--text)
 }
 
 /* LEFT COLUMN SEARCH BOX */
@@ -178,11 +178,6 @@ LABEL {
     background-color: var(--background3);
 }
 
-/* LINKS - "Return To Main" */
-.alembaNavigationTreeView.e-treeview .MAIN .e-list-text {
-    color: var(--text);
-}
-
 /* LINK - MENU ROOT OPTIONS */
 #Explorer > div > div.tab-content-container > div.tab-content.active > div > ul {
     background-color: var(--background5);
@@ -213,7 +208,7 @@ LABEL {
 .e-treeview .e-list-item.e-hover > .e-text-content .e-list-text,
 .alembaNavigationTreeView.e-treeview li.e-hover > .e-fullrow {
     background-color: var(--tint);
-    color: var(--text) !important;
+    color: var(--text);
     border-color: var(--background1) !important;
 }
 
@@ -255,7 +250,7 @@ LABEL {
     color: var(--text);
 }
 
-/* ------------------ SERVICE WINDOW ------------------ */
+/* ---------------SERVICE WINDOW --------------- */
 
 /* SERVICE WINDOW */
 #Sectin-ServiceWindowPlain {
@@ -264,10 +259,8 @@ LABEL {
 
 /* SERVICE WINDOW - GROUP DROPDOWN (SLA) */
 #Sectin-ServiceWindowPlain .iwpart-info-section-header,
-a.control-expand:visited {
+a.control-expand, a.control-expand:visited {
     background: var(--background3);
-}
-a.control-expand {
     color: var(--text);
 }
 /* SERVICE WINDOW - GROUP DROPDOWN (SLA) - BUTTONS ON RHS */
@@ -291,23 +284,18 @@ a.control-expand {
     border: 1px solid var(--background3);
 }
 
-/* SERVICE WINDOW - SLA: TABLE ROW TEXT */
-body.ServiceWindow.content-loaded.load-completed table {
-    color: black;
-}
-
 /* SERVICE WINDOW - FOOTER */
 #Sectin-ServiceWindowPlain .iwz-InlineActions-Plain-Right, #Sectin-ServiceWindowPlain .iwz-InlineActions-Plain {
     background-color: var(--background3);
     border-top: 0px solid var(--background3);
 }
 
-/* ------------------ CALL / INCIDENT / SERVICE REQUEST ------------------ */
+/* ---------------------- CALL ------------------- */
 
 /* CALL - NULL SPACE */
 .Layout-Container-Full {
     background-color: var(--background1);
-    border: 0px 1px 1px 1px solid var(--background3);
+    border: 1px solid var(--background3);
 }
 
 /* CALL - ROW BACKGROUND */
@@ -384,7 +372,7 @@ input[id*="TELEPHONE"] + a.telephone {
     color: black !important;
 }
 
-/* INCIDENT Description/History/Actions & Solutions */
+/* INCIDENT Description/History/Actions & Solutions ----- */
 /* Main background - INCIDENT - DESCRIPTION/HISTORY/ACTION */
 .iwpart-section-header {
     background-color: var(--background2);
@@ -436,7 +424,7 @@ input[type="checkbox"][disabled] + label {
     color: var(--text-lighter);
 }
 
-/* ------------------ INFO PANEL ------------------ */
+/* --------------------------- INFO PANEL ---------------------------- */
 
 /* Info Panel Null Space */
 .iwz-Info-Main-Content {
@@ -465,12 +453,12 @@ LABEL.info-Label,
     color: black;
 }
 
-/* ------------------ POPUPS ------------------ */
+/* -------------------------- POPUPS ------------------- */
 BODY.popup .iwz-Main-Content-Popup-Script {
     background-color: var(--background2);
 }
 
-/* ------------------ */
+/* --------------------------------- */
 /* Haven't done it yet? Go to ImS On ThE WeB */
 /* The below won't work because it's default style is applied on the element tag itself. */
 /* document.querySelector("#MAIN_CONTENT > div.Section-Size-Large").style=""; */
@@ -544,76 +532,4 @@ richtext-editor-actual#EMAIL_BODY_HTML_EDITOR div[iwtype="Messaging-section-rich
 /* popup filters: side sub-menu */
 .e-contextmenu-wrapper ul.e-contextmenu li.e-menu-item.e-focused {
     background-color: var(--tint);
-}
-
-/* CONTEXT MENU */
-.e-contextmenu-wrapper ul.e-contextmenu li.e-menu-item {
-    background-color: var(--background4);
-    color: black;
-}
-
-/* ------------------ LOGGING A TICKET ------------------ */
-
-/* TYPE ('field' pop-out) */
-.list-group-item {
-    background-color: var(--background2);
-}
-
-.tiered-list-container .list-container .list-group-item:hover:not(.expanded) {
-    background-color: var(--background3);
-}
-
-/* arrow */
-.tiered-list-container .list-container .list-group .list-group-item.expander .list-group-addon.expander:hover,
-.tiered-list-container .list-container .list-group-item.hover, .tiered-list-container .list-container .list-group-item:hover:not(.expanded) {
-    color: var(--text);
-}
-
-/* ------------------ "Forward to" list ------------------ */
-
-/* people and groups list */
-.Explorer,
-.alembaTreeView.e-treeview > .e-ul > li.e-list-item > ul.e-ul {
-    background-color: var(--background2);
-}
-
-.e-treeview .e-list-text {
-    color: var(--text);
-}
-
-/* little arrow */
-.e-treeview .e-icon-collapsible, .e-treeview .e-icon-expandable {
-    color: var(--text)
-}
-
-/* hover */
-.alembaTreeView.e-treeview > .e-ul li.e-hover > .e-fullrow,
-.alembaTreeView.e-treeview > .e-ul > li.e-list-item > ul.e-ul li.e-hover > .e-fullrow {
-    background-color: var(--tint);
-}
-
-.e-treeview .e-list-item.e-hover > .e-text-content .e-list-text {
-    background-color: transparent;
-}
-
-li.e-node-focus .e-list-item.e-hover > .e-text-content .e-list-text,
-li.e-node-focus.e-hover > .e-text-content .e-list-text {
-    color: white !important;
-}
-
-/* selected / focussed */
-li.e-list-item.e-node-focus .e-fullrow,
-li.e-list-item.e-node-focus.e-hover .e-fullrow {
-    background-color: var(--tint) !important;
-}
-
-/* ------------------ CLOSING A TICKET ------------------ */
-
-INPUT:enabled, SELECT:enabled, TEXTAREA:enabled {
-    color: black;
-}
-
-/* ------------------ POPUP / Are you sure? ------------------ */
-BODY.popup .AlertContent {
-    color: var(--text);
 }
