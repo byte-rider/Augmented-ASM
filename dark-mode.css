@@ -367,7 +367,8 @@ body.ServiceWindow.content-loaded.load-completed table {
 
 /* INCIDENT MAIN FIELD "TYPE" */
 #PROBLEMTYPE_REF_COMPOSITE > div > div > div > div > input,
-.tiered-list-container .input-group {
+.tiered-list-container .input-group,
+::placeholder {
     background-color: var(--background4);
     color: black !important;
     opacity: 1.0;
