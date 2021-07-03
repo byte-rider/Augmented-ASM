@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.50
+// @version      1.51
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -17,7 +17,7 @@
 
 debugger;
 
-const AASMVERSION = "1.50";
+const AASMVERSION = "1.51";
 
 /* Stylings for anything added to the page
    (controls, buttons etc.) */
@@ -220,19 +220,19 @@ const cssControls = `
         (dark_mode_flag) ? modify_all_documents(window.top.frames, add_stylesheet, darkModeElement) : modify_all_documents(window.top.frames, remove_stylesheet, darkModeElement)
         // add/remove the dark mode tint
         // (dark_mode_flag) ? modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle) : modify_all_documents(window.top.frames, remove_stylesheet, darkModeTintStyle)
-        // NOTE: for some reason the above code falls over when the flag is fale, i.e., when removing the <style> element.
-        // Alemba's jQuery catches the error and the following is it's value on the stack:
-        //    Uncaught TypeError: modify_all_documents(...) is not a function.
-        // The reason for this error is beyond my knowledge, every other call to that function has it execute.
-        // Because of this the <style> will simply remain in the dom; there's no harm there because it's just
-        // one line of CSS. A line containing a colour variable called --tint which is never used by Alemba, it looks like this:
-        //    :root {--tint: #123456;}
+        /* NOTE: for some reason the above code falls over when the flag is false, i.e., when removing the <style> element.
+        Alemba's jQuery catches the following error: Uncaught TypeError: modify_all_documents(...) is not a function.
+        The reason for this error is beyond my knowledge, every other call to that function is fine.
+        Because of this the <style> will simply remain in the dom; there's no harm there because it's just
+        one line of CSS. A line containing a colour variable (--tint) which is never referenced by Alemba, it looks something like this:
+           :root {--tint: #123456;}
+        */
         if (dark_mode_flag) {
             modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle)
         }
     }
     
-    /* colour picker's oninput:
+    /* User has used the colour picker:
         record the new colour as a CSS variable called: --tint.
         Then remove and re-add the "tint" <syle> element from the DOM ...but only if the user has dark mode on.
     */
@@ -246,12 +246,12 @@ const cssControls = `
 
     /* cascade_element(document, element)
         sends a <style> element to the end of <head>. Used to ensure our own CSS
-        is being applied insteaad of Alemba's.
+        is being applied instead of Alemba's.
 
-        The semaphore is there to slow things down otherwise there's so much flicker
-        when this is used for dark mode. The reason for the flicker is that the Alemba
-        server is so slow and their style's trickle in, with this pushing 'element' in front
-        of it almost immediately (every 500 milliseconds; see augmented_asm_daemon()'s interval call)
+        The semaphore is there to slow things down otherwise there's an epileptic level of flicker
+        when in dark mode. The reason for the flicker is that the Alemba server is very slow and so
+        their style's only 'trickle' in with this pushing our element in front of it immediately.
+        Well not quite immediately but every 500 milliseconds (according to augmented_asm_daemon()'s interval call)
     */
     function cascade_element(document, element) {
         if (semaphore && document.getElementById(`${element.id}`).nextSibling != null) {
@@ -291,9 +291,9 @@ const cssControls = `
             ...
         </html>
     The reason for inserting as second-last child is to stop flickering when the user
-    changes the "tint" colour in dark-mode, because if the <style> containing the new tint
-    was inserted AFTER the <style> for dark-mode's css the screen flickers; the C in CSS stands
-    for cascade after all.
+    changes the "tint" colour in dark-mode. This flickering happens because the <style>
+    containing the new tint colour is inserted at the end, meaning after the <style>
+    for dark-mode and so things are repainted. The C in CSS stands for cascade after all.
     */
     function add_stylesheet(doc, element) {
         // only add element if it's not already there
@@ -310,7 +310,7 @@ const cssControls = `
     Alemba have iframes all over the place. This function crawls through the dom,
     passing each iframe's document into the callback function (second parameter).
     The first argument should be 'window.top.frames' to cover entire dom, else
-    window.frames to start traversing the dom from only the current iframe in focus.
+    window.frames to start traversing from only the current iframe in focus.
     */
     function modify_all_documents(frames, callback, element) {
         // stop recursion if at leaf.
@@ -318,16 +318,16 @@ const cssControls = `
             return;
         }
         
-        // get the very first document
+        // apply the very first document
         if (frames === window.top.frames) {
             callback(frames.document, element);
         }
 
         for (let i = 0; i < frames.length; i++) {
-            // get all documents in the nodelist
+            // now apply to all children
             callback(frames[i].document, element);
             
-            // Douglas Hofstadter, baby
+            // Douglas Hofstadter, baby (recurse back on self)
             modify_all_documents(frames[i], callback, element);
         }
     }
@@ -936,7 +936,5 @@ const cssControls = `
     
     // Turn on initially
     augment();
-
-    // augmented_asm_daemon();
 
 })();
