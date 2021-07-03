@@ -215,65 +215,122 @@ const cssControls = `
     document.querySelector("#btn-dark-mode").addEventListener("click", _dark_mode);
     function _dark_mode(event) {
         dark_mode_flag = ~dark_mode_flag;
-        // Change Alemba's banner; they have it on the Element itself for some reason meaning no CSS could've changed it
-        (dark_mode_flag) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
+        // style the button that was just pressed
         (dark_mode_flag) ? document.getElementById("btn-dark-mode").classList.add("aasm-button-active") : document.getElementById("btn-dark-mode").classList.remove("aasm-button-active");
-        recursively_touch_dom(dark_mode_flag, darkModeElement, window.top.frames);
-        recursively_touch_dom(dark_mode_flag, darkModeTintStyle, window.top.frames);
+        // change Alemba's banner; they have it styled on the Element itself for some reason meaning no stylesheet could change it
+        (dark_mode_flag) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
+        // add/remove the dark mode CSS
+        (dark_mode_flag) ? modify_all_documents(window.top.frames, add_stylesheet, darkModeElement) : modify_all_documents(window.top.frames, remove_stylesheet, darkModeElement)
+        // add/remove the dark mode tint
+        // (dark_mode_flag) ? modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle) : modify_all_documents(window.top.frames, remove_stylesheet, darkModeTintStyle)
+        // NOTE: for some reason the above code falls over when the flag is fale, i.e., when removing the <style> element.
+        // Alemba's jQuery catches the error and the following is it's value on the stack:
+        //    Uncaught TypeError: modify_all_documents(...) is not a function.
+        // The reason for this error is beyond my knowledge, every other call to that function has it execute.
+        // Because of this the <style> will simply remain in the dom; there's no harm there because it's just
+        // one line of CSS. A line containing a colour variable called --tint which is never used by Alemba, it looks like this:
+        //    :root {--tint: #123456;}
+        if (dark_mode_flag) {
+            modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle)
+        }
     }
-
+    
+    /* colour picker's oninput:
+        record the new colour as a CSS variable called: --tint.
+        Then remove and re-add the "tint" <syle> element from the DOM ...but only if the user has dark mode on.
+    */
     document.querySelector("#colour-picker").addEventListener("input", (event) => {
         darkModeTintStyle.innerHTML = `:root {--tint: ${event.target.value};}`;
         if (dark_mode_flag) {
-            recursively_touch_dom(false, darkModeTintStyle, window.top.frames);
-            recursively_touch_dom(true, darkModeTintStyle, window.top.frames);
+            modify_all_documents(window.top.frames, remove_stylesheet, darkModeTintStyle);
+            modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle);
         }
     });
 
-    function recursively_touch_dom(add, element, frames) {
-        // add element
-        if (add) { 
-            if (!frames.document.contains(frames.document.getElementById(`${element.id}`))) {
-                if (frames.document.head.lastElementChild === null) { // if <head> is empty, place at end
-                    frames.document.head.append(element.cloneNode(true));
-                } else { // place second-last
-                    frames.document.head.lastElementChild.insertAdjacentElement('beforebegin', element.cloneNode(true));
-                }
+    /* cascade_dark_mode(document, element)
+    sends dark mode's <style> element to the end of <head>
+    */
+    function cascade_dark_mode(doc, darkModeElement) {
+        if (semaphore && doc.getElementById(`${darkModeElement.id}`).nextSibling != null) {
+            semaphore = false;
+            setTimeout(() => {
+                semaphore = true;
+                doc.head.appendChild(doc.getElementById(`${darkModeElement.id}`)); // appendChild will move the element, i.e., remove then read at the end.
+            }, interval);
+        }
+    }
+
+    function remove_stylesheet(doc, element) {
+        if (doc.contains(doc.getElementById(`${element.id}`))) {
+            doc.getElementById(`${element.id}`).remove();
+        }
+    }
+
+    /* add_stylesheet(document, element)
+    Adds <style> element to the document's <head> as its second-last child. Like this:
+    document
+        <html>
+            <head>
+                <link>
+                ...
+                <style>  <-- element inserted here
+                <style>  
+            </head>
+            ...
+        </html>
+        
+    Unless head is empty, in which case it's inserted as its only child:
+    document
+        <html>
+            <head>
+                <style>  <-- element inserted here
+            </head>
+            ...
+        </html>
+    The reason for inserting as second-last child is to stop flickering when the user
+    changes the "tint" colour in dark-mode, because if the <style> containing the new tint
+    was inserted AFTER the <style> for dark-mode's css the screen flickers; the C in CSS stands
+    for cascade after all.
+    */
+    function add_stylesheet(doc, element) {
+        // only add element if it's not already there
+        if (!doc.contains(doc.getElementById(`${element.id}`))) {
+            if (element.children.length === 0) {
+                doc.head.append(element.cloneNode(true));
+            } else {
+                doc.head.lastElementChild.insertAdjacentElement('beforebegin', element.cloneNode(true));
             }
         }
+    }
 
-        // remove element
-        if (!add) {
-            if (frames.document.contains(frames.document.getElementById(`${element.id}`))) {
-                frames.document.getElementById(`${element.id}`).remove();
-            }
-        }
-
-        // cascade dark mode (sends <link> down the nodes in <head>)
-            if (add && element.id === "dark_mode" && frames.document.getElementById("dark_mode").nextSibling != null) {
-                if (semaphore) {
-                    semaphore = false;
-                    setTimeout(() => {
-                        semaphore = true;
-                        frames.document.head.appendChild(frames.document.getElementById("dark_mode"));
-                    }, interval);
-                }
-            }
-
+    /* modify_all_documents(frames, callback, element)
+    Alemba have iframes all over the place. This function crawls through the dom,
+    passing each iframe's document into the callback function (second parameter).
+    The first argument should be 'window.top.frames' to cover entire dom, else
+    window.frames to start traversing the dom from only the current iframe in focus.
+    */
+    function modify_all_documents(frames, callback, element) {
         // stop recursion if at leaf.
         if (frames.length === 0) {
             return;
         }
-        // Douglas Hofstadter, baby
+        
+        // get the very first document
+        if (frames === window.top.frames) {
+            callback(frames.document, element);
+        }
+
         for (let i = 0; i < frames.length; i++) {
-            recursively_touch_dom(add, element, frames[i]);
+            // get all documents in the nodelist
+            callback(frames[i].document, element);
+            
+            // Douglas Hofstadter, baby
+            modify_all_documents(frames[i], callback, element);
         }
     }
 
     // BUTTON RESET TO DEFAULT
-    document.querySelector("#aasm_controls #btn-default").addEventListener("click", setDefault);
-    function setDefault()
-    {
+    document.querySelector("#aasm_controls #btn-default").addEventListener("click", () => {
         // toggle buttons if they're on.
         (augment_flag) ? augment(): null;
 
@@ -286,7 +343,7 @@ const cssControls = `
         let tabs_icon = document.querySelectorAll(".tab-label-image");
         let tabs_text = document.querySelectorAll(".tab-label-text");
         let tabs_close = document.querySelectorAll(".tab-label-close");
-        for (let i = 0; i < tabs_text.length; i++) {
+        for (let i = 0; i < tabs.length; i++) {
             tabs_icon[i].style.width = "16px";
             tabs_icon[i].style.height = "16px";
             tabs_text[i].style.fontSize = "inherit";
@@ -295,7 +352,6 @@ const cssControls = `
             tabs_close[i].style.width = "16px";
             tabs_close[i].style.height = "16px";
         }
-
 
         // reset 2nd slider (tab width)
         slider_maxwidth.value = 0.5;
@@ -306,7 +362,7 @@ const cssControls = `
         // reset third slider (description)
         slider_description.value = 1;
         adjust_row_height();
-    }
+    });
 
     // BUTTON ABOUT
     document.querySelector("#aasm_controls #btn-about").addEventListener("click", aboutAlert);
@@ -845,8 +901,9 @@ const cssControls = `
     // DAEMON
     function augmented_asm_daemon() {
         if (dark_mode_flag) {
-            recursively_touch_dom(true, darkModeTintStyle, window.top.frames);
-            recursively_touch_dom(true, darkModeElement, window.top.frames);
+            modify_all_documents(window.top.frames, add_stylesheet, darkModeElement)
+            modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle)
+            modify_all_documents(window.top.frames, cascade_dark_mode, darkModeElement)
         }
 
         // `Augment` button off? Go no further
