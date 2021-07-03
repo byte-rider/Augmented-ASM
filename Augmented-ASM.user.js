@@ -15,7 +15,7 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
-// debugger;
+debugger;
 
 const AASMVERSION = "1.50";
 
@@ -194,9 +194,6 @@ const cssControls = `
         augment_flag = ~augment_flag;
     };
 
-    // Turn on initially
-    augment();
-
     // ---------------------------
     //            DARK MODE
     // -------------------------------------------------------------
@@ -247,22 +244,28 @@ const cssControls = `
         }
     });
 
-    /* cascade_dark_mode(document, element)
-    sends dark mode's <style> element to the end of <head>
+    /* cascade_element(document, element)
+        sends a <style> element to the end of <head>. Used to ensure our own CSS
+        is being applied insteaad of Alemba's.
+
+        The semaphore is there to slow things down otherwise there's so much flicker
+        when this is used for dark mode. The reason for the flicker is that the Alemba
+        server is so slow and their style's trickle in, with this pushing 'element' in front
+        of it almost immediately (every 500 milliseconds; see augmented_asm_daemon()'s interval call)
     */
-    function cascade_dark_mode(doc, darkModeElement) {
-        if (semaphore && doc.getElementById(`${darkModeElement.id}`).nextSibling != null) {
+    function cascade_element(document, element) {
+        if (semaphore && document.getElementById(`${element.id}`).nextSibling != null) {
             semaphore = false;
             setTimeout(() => {
                 semaphore = true;
-                doc.head.appendChild(doc.getElementById(`${darkModeElement.id}`)); // appendChild will move the element, i.e., remove then read at the end.
+                document.head.appendChild(document.getElementById(`${element.id}`)); // appendChild will move the element, i.e., remove then read at the end.
             }, interval);
         }
     }
 
-    function remove_stylesheet(doc, element) {
-        if (doc.contains(doc.getElementById(`${element.id}`))) {
-            doc.getElementById(`${element.id}`).remove();
+    function remove_stylesheet(document, element) {
+        if (document.contains(document.getElementById(`${element.id}`))) {
+            document.getElementById(`${element.id}`).remove();
         }
     }
 
@@ -379,8 +382,9 @@ const cssControls = `
     }
 
 
-    // WASTED SPACE
+    // the following function has been discontinued due to UI concerns; it's jarring to see the margin change when pressing the Augment button
     /*
+    // WASTED SPACE
     function wastedSpace(toggleOn) {
         let e = document.querySelector(".outer-tab-view");
         (toggleOn) ? e.style.marginLeft = "0rem": e.style.marginLeft = "20px";
@@ -432,31 +436,20 @@ const cssControls = `
         max-height: none;
     }
     `;
-    function readability_mode(toggle) {
-        // ASM deliver tabbed content through iFrames. We must iterate through them all
-        // and append our own <style> tag in each frame, ensuring all tabs are re-styled.
+
+    let readability_mode = function(toggle) {
+        // ASM deliver tabbed content through iframes. We must go through each document
+        // and append our own <style> tag in each <head>, ensuring all tabs are re-styled.
         // This allows us to undo by removing each <style> tag appropriately.
-        let iFrames = document.querySelectorAll(".busy-content");
-        let iDocument;
-
-        for (let iFrame of iFrames) {
-            // Try to grab any open tickets that need styling
-            try {iDocument = iFrame.contentWindow.document.querySelector("#Main").contentWindow.document}
-            catch { continue; }
-
-            // APPLY
-            if (toggle) {
-                if (!iDocument.contains(iDocument.getElementById("readability_mode_css"))) {
-                    let clone = readability_mode_css.cloneNode(true);
-                    iDocument.body.appendChild(clone); // inject <style>
-                }
-            }
-
-            // REMOVE
-            if (!toggle) {
-                if (iDocument.contains(iDocument.getElementById("readability_mode_css")))
-                    iDocument.getElementById("readability_mode_css").remove(); // remove <style>
-                }
+        // APPLY
+        if (toggle) {
+            modify_all_documents(window.top.frames, add_stylesheet, readability_mode_css);
+            modify_all_documents(window.top.frames, cascade_element, readability_mode_css);
+        }
+        
+        // REMOVE
+        if (!toggle) {
+            modify_all_documents(window.top.frames, remove_stylesheet, readability_mode_css);
         }
     }
 
@@ -903,7 +896,7 @@ const cssControls = `
         if (dark_mode_flag) {
             modify_all_documents(window.top.frames, add_stylesheet, darkModeElement)
             modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle)
-            modify_all_documents(window.top.frames, cascade_dark_mode, darkModeElement)
+            modify_all_documents(window.top.frames, cascade_element, darkModeElement)
         }
 
         // `Augment` button off? Go no further
@@ -935,11 +928,15 @@ const cssControls = `
         try { enable_tab_reordering(); } catch { null; }
     }
 
+    // kick daemon off by calling function every n milliseconds
+    setInterval(augmented_asm_daemon, 500)
+
     // advertise update
     advertise_update();
+    
+    // Turn on initially
+    augment();
 
-    augmented_asm_daemon();
-    setInterval(function () {
-        augmented_asm_daemon()
-    }, 500)
+    // augmented_asm_daemon();
+
 })();
