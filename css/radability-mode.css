@@ -1,0 +1,32 @@
+/* Makes fields easier to read */
+.Field[readonly], INPUT[disabled], .Field-Dropdown[disabled]{
+    color: black !important;
+    border-color: black !important;
+}
+
+input.form-control[disabled] {
+    opacity: 1 !important;
+}
+
+div[readonlyisreadonly] > label {
+        color: inherit;
+    }
+
+    input.readonly, .search-control .search-control-input.readonly, .tiered-list-container .input-group > input.form-control, input[id*="TELEPHONE"][readonly] + a.telephon {
+    border-color: black !important;
+}
+
+/* Increase height of list (when forarding a ticket) */
+.Explorer {
+    height: 70vh;
+}
+
+/* Increase height of "Service" popup box */
+.search-control .search-control-output-table {
+    max-height: 70vh;
+}
+
+/* Increase height of "Type" popup box */
+.tiered-list-container .list-container {
+    max-height: none;
+}
