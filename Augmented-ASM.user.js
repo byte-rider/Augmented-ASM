@@ -8,6 +8,7 @@
 // @run-at       document-end
 // @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
+// @resource     AASM_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/aasm.css
 // @resource     DARK_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/dark-mode.css
 // @connect      samsara-nc
 // @grant        GM_xmlhttpRequest
@@ -18,84 +19,6 @@
 debugger;
 
 const AASMVERSION = "1.51";
-
-/* Stylings for anything added to the page
-   (controls, buttons etc.) */
-const cssControls = `
-@import url('https://fonts.googleapis.com/css2?family=Caveat&display=swap');
-
-#aasm_controls, #aasm_controls-2 {
-  display: flex;
-  flex-flow: column nowrap;
-  position: relative;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-#aasm_controls-2 {
-  display: none;
-}
-
-#btn-update {
-  display: none;
-}
-
-.aasm-button {
-	padding: 0.35rem 2rem 0.2rem 2rem;
-	margin-right: 1rem;
-	border-radius: 0.4rem;
-	text-align: center;
-	transition: all 0.2s;
-	font-family: "Lucida Console", "Courier New", monospace;
-	font-size: 1.2rem;
-	text-transform: uppercase;
-    border: 2px solid grey;
-    background: none;
-}
-
-.aasm-button:hover {
-  color: white;
-  background-color: grey;
-}
-
-.aasm-button-active {
-  background-color: #c8c8c8;
-  color: #4d4d4d;
-}
-
-#colour-picker {
-    margin-right: 1rem;
-}
-
-.aasm-flex-item {
-  display: flex;
-  margin: 0.25rem 0 0.25rem 1rem;
-}
-
-#aasm_controls .slider {
-  width: 27rem;
-}
-
-#aasm_controls .slider-label {
-	text-align: center;
-	padding-left: 1rem;
-    padding-top: 0.3rem;
-	font-size: 1.2rem;
-	letter-spacing: 0.3rem;
-	font-family: "Lucida Console", "Courier New", monospace;
-}
-
-.aasmwatermark {
-    position: absolute;
-    left: 44rem;
-    top: 4.3rem;
-    font-size: 3.5rem;
-    opacity: 0.2;
-    font-family: 'Caveat', cursive;
-}
-
-`;
-
 
 (function () {
     'use strict';
@@ -136,9 +59,9 @@ const cssControls = `
     `;
 
     // INJECT AASM-CSS
-    let styleElementAASM = document.createElement('style');
-    styleElementAASM.innerHTML = cssControls;
-    (document.head || document.documentElement).appendChild(styleElementAASM);
+    let aasmRawCSS = GM_getResourceText("AASM_CSS");
+    let aasmCSSElement = GM_addStyle(aasmRawCSS);
+    aasmCSSElement.id = "aasm_css";
 
     // INJECT ANIMATION CSS LIBRARY (https://animate.style/)
     let animate = document.createElement('link');
