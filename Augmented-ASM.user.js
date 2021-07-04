@@ -9,6 +9,7 @@
 // @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @resource     AASM_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/aasm.css
+// @resource     READABILITY_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/readability-mode.css
 // @resource     DARK_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/dark-mode.css
 // @connect      samsara-nc
 // @grant        GM_xmlhttpRequest
@@ -86,7 +87,6 @@ const AASMVERSION = "1.51";
         document.querySelector("#aasm_controls-2").style.display = "none";
     }
 
-
     // BUTTON AUGMENT
     let augment_flag = false;
     document.querySelector("#btn-augment").addEventListener("click", augment);
@@ -131,7 +131,7 @@ const AASMVERSION = "1.51";
     let darkModeElement = GM_addStyle(dark_mode_raw_css);
     darkModeElement.id = "dark_mode";
     document.getElementById("dark_mode").remove();
-
+    
     document.querySelector("#btn-dark-mode").addEventListener("click", _dark_mode);
     function _dark_mode(event) {
         dark_mode_flag = ~dark_mode_flag;
@@ -148,7 +148,7 @@ const AASMVERSION = "1.51";
         The reason for this error is beyond my knowledge, every other call to that function is fine.
         Because of this the <style> will simply remain in the dom; there's no harm there because it's just
         one line of CSS. A line containing a colour variable (--tint) which is never referenced by Alemba, it looks something like this:
-           :root {--tint: #123456;}
+        :root {--tint: #123456;}
         */
         if (dark_mode_flag) {
             modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle)
@@ -159,25 +159,25 @@ const AASMVERSION = "1.51";
         record the new colour as a CSS variable called: --tint.
         Then remove and re-add the "tint" <syle> element from the DOM ...but only if the user has dark mode on.
     */
-    document.querySelector("#colour-picker").addEventListener("input", (event) => {
-        darkModeTintStyle.innerHTML = `:root {--tint: ${event.target.value};}`;
+   document.querySelector("#colour-picker").addEventListener("input", (event) => {
+       darkModeTintStyle.innerHTML = `:root {--tint: ${event.target.value};}`;
         if (dark_mode_flag) {
             modify_all_documents(window.top.frames, remove_stylesheet, darkModeTintStyle);
             modify_all_documents(window.top.frames, add_stylesheet, darkModeTintStyle);
         }
     });
-
+    
     /* cascade_element(document, element)
         sends a <style> element to the end of <head>. Used to ensure our own CSS
         is being applied instead of Alemba's.
-
+        
         The semaphore is there to slow things down otherwise there's an epileptic level of flicker
         when in dark mode. The reason for the flicker is that the Alemba server is very slow and so
         their style's only 'trickle' in with this pushing our element in front of it immediately.
         Well not quite immediately but every 500 milliseconds (according to augmented_asm_daemon()'s interval call)
-    */
-    function cascade_element(document, element) {
-        if (semaphore && document.getElementById(`${element.id}`).nextSibling != null) {
+        */
+       function cascade_element(document, element) {
+           if (semaphore && document.getElementById(`${element.id}`).nextSibling != null) {
             semaphore = false;
             setTimeout(() => {
                 semaphore = true;
@@ -191,35 +191,35 @@ const AASMVERSION = "1.51";
             document.getElementById(`${element.id}`).remove();
         }
     }
-
+    
     /* add_stylesheet(document, element)
     Adds <style> element to the document's <head> as its second-last child. Like this:
     document
         <html>
-            <head>
-                <link>
-                ...
+        <head>
+        <link>
+        ...
                 <style>  <-- element inserted here
                 <style>  
-            </head>
+                </head>
             ...
-        </html>
+            </html>
         
-    Unless head is empty, in which case it's inserted as its only child:
-    document
+            Unless head is empty, in which case it's inserted as its only child:
+            document
         <html>
-            <head>
-                <style>  <-- element inserted here
-            </head>
-            ...
+        <head>
+        <style>  <-- element inserted here
+        </head>
+        ...
         </html>
-    The reason for inserting as second-last child is to stop flickering when the user
-    changes the "tint" colour in dark-mode. This flickering happens because the <style>
-    containing the new tint colour is inserted at the end, meaning after the <style>
-    for dark-mode and so things are repainted. The C in CSS stands for cascade after all.
-    */
-    function add_stylesheet(doc, element) {
-        // only add element if it's not already there
+        The reason for inserting as second-last child is to stop flickering when the user
+        changes the "tint" colour in dark-mode. This flickering happens because the <style>
+        containing the new tint colour is inserted at the end, meaning after the <style>
+        for dark-mode and so things are repainted. The C in CSS stands for cascade after all.
+        */
+       function add_stylesheet(doc, element) {
+           // only add element if it's not already there
         if (!doc.contains(doc.getElementById(`${element.id}`))) {
             if (element.children.length === 0) {
                 doc.head.append(element.cloneNode(true));
@@ -228,17 +228,17 @@ const AASMVERSION = "1.51";
             }
         }
     }
-
+    
     /* modify_all_documents(frames, callback, element)
     Alemba have iframes all over the place. This function crawls through the dom,
     passing each iframe's document into the callback function (second parameter).
     The first argument should be 'window.top.frames' to cover entire dom, else
     window.frames to start traversing from only the current iframe in focus.
     */
-    function modify_all_documents(frames, callback, element) {
-        // stop recursion if at leaf.
-        if (frames.length === 0) {
-            return;
+   function modify_all_documents(frames, callback, element) {
+       // stop recursion if at leaf.
+       if (frames.length === 0) {
+           return;
         }
         
         // apply the very first document
@@ -254,15 +254,15 @@ const AASMVERSION = "1.51";
             modify_all_documents(frames[i], callback, element);
         }
     }
-
+    
     // BUTTON RESET TO DEFAULT
     document.querySelector("#aasm_controls #btn-default").addEventListener("click", () => {
         // toggle buttons if they're on.
         (augment_flag) ? augment(): null;
-
+        
         // toggle darkmode if it's on
         (dark_mode_flag) ? _dark_mode() : null;
-
+        
         // reset 1st slider (tab content size)
         slider_contents.value = 1.5;
         let tabs = document.querySelectorAll(".tab");
@@ -278,7 +278,7 @@ const AASMVERSION = "1.51";
             tabs_close[i].style.width = "16px";
             tabs_close[i].style.height = "16px";
         }
-
+        
         // reset 2nd slider (tab width)
         slider_maxwidth.value = 0.5;
         for (let i = 0; i < tabs_text.length; i++) {
@@ -289,23 +289,26 @@ const AASMVERSION = "1.51";
         slider_description.value = 1;
         adjust_row_height();
     });
-
+    
     // BUTTON ABOUT
     document.querySelector("#aasm_controls #btn-about").addEventListener("click", aboutAlert);
-
+    
     function aboutAlert() {
         window.open("https://confluence.csiro.au/display/~edw19b/Augmented-ASM");
     }
-
+    
     // BUTTON UPDATE
     document.querySelector("#aasm_controls #btn-update").addEventListener("click", update);
 
     function update() {
         window.open("https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js");
     }
-
-
-    // the following function has been discontinued due to UI concerns; it's jarring to see the margin change when pressing the Augment button
+    
+    
+    /* the following function has been discontinued due to UI concerns; 
+       it provides only little benefit but it's jarring to see the
+       margin change when pressing the Augment button.
+    */
     /*
     // WASTED SPACE
     function wastedSpace(toggleOn) {
@@ -314,65 +317,32 @@ const AASMVERSION = "1.51";
     }
     */
 
-    // NAVBAR FIX
+   // NAVBAR FIX
     function navbarFix(toggleOn) {
         let e = document.querySelector("#AlembaToolbar .navbar-nav");
         (toggleOn) ? e.style.minWidth = "570px": e.style.minWidth = "410px";
     }
-
+    
     // READABILITY MODE
     // <style> element
-    let readability_mode_css = document.createElement('style');
-    readability_mode_css.setAttribute("id", "readability_mode_css");
-    readability_mode_css.innerHTML = `
-    /* Makes fields easier to read */
-    .Field[readonly], INPUT[disabled], .Field-Dropdown[disabled]{
-    color: black !important;
-    border-color: black !important;
-    }
-
-    input.form-control[disabled] {
-    opacity: 1 !important;
-    }
-
-    div[readonlyisreadonly] > label {
-        color: inherit;
-    }
-
-    input.readonly, .search-control .search-control-input.readonly, .tiered-list-container .input-group > input.form-control, input[id*="TELEPHONE"][readonly] + a.telephon {
-    border-color: black !important;
-    }
-
-
-    /* Increase height of list (when forarding a ticket) */
-    .Explorer {
-    height: 70vh;
-    }
-
-    /* Increase height of "Service" popup box */
-    .search-control .search-control-output-table {
-        max-height: 70vh;
-    }
-
-    /* Increase height of "Type" popup box */
-    .tiered-list-container .list-container {
-        max-height: none;
-    }
-    `;
-
+    let readabilityModeRawCSS = GM_getResourceText("READABILITY_MODE_CSS");
+    let readabilityModeElement = GM_addStyle(readabilityModeRawCSS);
+    readabilityModeElement.id = "readability_mode";
+    document.getElementById("readability_mode").remove();
+    
     let readability_mode = function(toggle) {
         // ASM deliver tabbed content through iframes. We must go through each document
         // and append our own <style> tag in each <head>, ensuring all tabs are re-styled.
         // This allows us to undo by removing each <style> tag appropriately.
         // APPLY
         if (toggle) {
-            modify_all_documents(window.top.frames, add_stylesheet, readability_mode_css);
-            modify_all_documents(window.top.frames, cascade_element, readability_mode_css);
+            modify_all_documents(window.top.frames, add_stylesheet, readabilityModeElement);
+            modify_all_documents(window.top.frames, cascade_element, readabilityModeElement);
         }
         
         // REMOVE
         if (!toggle) {
-            modify_all_documents(window.top.frames, remove_stylesheet, readability_mode_css);
+            modify_all_documents(window.top.frames, remove_stylesheet, readabilityModeElement);
         }
     }
 
