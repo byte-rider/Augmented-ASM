@@ -416,12 +416,22 @@ const AASMVERSION = "1.51";
         }
     }
 
-    // KEYBOARD SNAP TO
-    // Snap and Search (magnifying glass)
+    // -----------------------------------
+    //     KEYBOARD SNAP TO (👇 & 🔍)
+    // -------------------------------------------------------------
+    /* Adds two icons for quickly selecting the recipient of a ticket.
+        👇 = snap: re-creates vFire functionality of 'snapping' to a recipient by typing the first few chars of their name
+        🔍 = find: searches the list of names and returns first positive match, eg: 'secur' matches 'Cyber Security'.
+    */
     function add_finger_and_search_icons() {
-        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#SPAN_IN_OFFICERS_")) {
+        /*  The following if statement ensures we don't insert the icons where they don't belong. This is achieved by checking
+            a string has "FORWARD" in it. The string searched is the page title when forwarding a ticket. which says:
+            "FORWARD CALL 1234567 INTERNALLY"
+        */
+        if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("div[iwtype='PageTitle'] span#heading").innerText.includes("FORWARD")) {
             return;
         }
+
         // Insert buttons if not already there
         if (!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-searchto")) {
 
@@ -447,12 +457,13 @@ const AASMVERSION = "1.51";
             div.parentNode.insertBefore(wrapper, div.nextSibling);
 
             // add event listeners
-            btn1.addEventListener("click", () => keyboard_lookup('snap'));
-            btn2.addEventListener("click", () => keyboard_lookup('find'));
+            btn1.addEventListener("click", () => _keyboard_lookup('snap'));
+            btn2.addEventListener("click", () => _keyboard_lookup('find'));
         }
     }
 
-    function keyboard_lookup(type) {
+    // prompts user for input, then performs a snap or search depending on 'type' argument.
+    function _keyboard_lookup(type) {
         let keypress = prompt(`${type}`, "");
         let activeDocument = document.activeElement.contentWindow.document.activeElement.contentWindow.document
         let cssFoo = ".e-list-item.e-level-1 .e-text-content.e-icon-wrapper img+span div span";
@@ -468,12 +479,15 @@ const AASMVERSION = "1.51";
         if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;")
             names_listed = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
 
+        /* The below simulates a fair-dinkum click of the mouse. It's requried because it's not possible
+            to use standard document interaction due to Alemba's watchdog listeners that intercept everything
+            from a rightclick through to any keydown. Code courtesy of Stack Overflow user Iván Nokonoko
+            Source: https://stackoverflow.com/questions/55059006/simulate-a-real-human-mouse-click-in-pure-javascript
+        */
         let simulateClick = function (element) {
-            console.log("trying to click")
             let box = element.getBoundingClientRect(),
                 coordX = box.left + (box.right - box.left) / 2,
                 coordY = box.top + (box.bottom - box.top) / 2;
-
             element.dispatchEvent(new MouseEvent("mousedown", {
                 bubbles: true,
                 cancelable: false,
@@ -481,7 +495,6 @@ const AASMVERSION = "1.51";
                 clientY: coordY,
                 button: 0
             }));
-            console.log("mousedown")
             element.dispatchEvent(new MouseEvent("mouseup", {
                 bubbles: true,
                 cancelable: false,
@@ -489,7 +502,6 @@ const AASMVERSION = "1.51";
                 clientY: coordY,
                 button: 0
             }));
-            console.log("mouseup")
             element.dispatchEvent(new MouseEvent("click", {
                 bubbles: true,
                 cancelable: false,
@@ -497,7 +509,6 @@ const AASMVERSION = "1.51";
                 clientY: coordY,
                 button: 0
             }));
-            console.log("click")
         }
         for (let span of names_listed) {
             //console.log(`searching span: ${span.innerText} | [${span.innerText.slice(0, keypress.length).toUpperCase()}] =?= [${keypress.toUpperCase()}]`);
@@ -649,7 +660,7 @@ const AASMVERSION = "1.51";
         draggedTab: null, // element: tab being dragged
         nearestTab: null, // element: neighbouring tab when user 'drops'
         position: null, // string: [left|right] relative position to neighbour (to the left or right of neighbour)
-        inDropZone: false // boolean: used when user drops in out of bounds area.
+        inDropZone: false // boolean: used when user drops in an out-of-bounds area.
     };
     let indicationTab = document.createElement("li");
     indicationTab.setAttribute("class", "tab");
