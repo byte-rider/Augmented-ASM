@@ -17,13 +17,13 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
-/* 
- _   _                  _     _   
-| |_| |__   ___    __ _(_)___| |_ 
+/*
+ _   _                  _     _
+| |_| |__   ___    __ _(_)___| |
 | __| '_ \ / _ \  / _` | / __| __|
-| |_| | | |  __/ | (_| | \__ \ |_ 
+| |_| | | |  __/ | (_| | \__ \ |
  \__|_| |_|\___|  \__, |_|___/\__|
-                  |___/           
+                  |___/
 
     A series of Javascript functions that do stuff to the page.
 
@@ -33,22 +33,23 @@
     There is a daemon which runs every 500 milliseconds. The daemon keeps watch of certain
     flags and runs or doesn't run functions. This is how something can be applied to a page
     that doesn't exist in the dom when the user toggles it, but will be applied once it exists.
-    All headings made with the 'ogre' font here: http://www.network-science.de/ascii/ 
+
+    All headings made with the 'ogre' font here: http://www.network-science.de/ascii/
 */
 
 /*
-                       _             
- _ __   __ _ _ __ ___ (_)_ __   __ _ 
+                       _
+ _ __   __ _ _ __ ___ (_)_ __   __ _
 | '_ \ / _` | '_ ` _ \| | '_ \ / _` |
 | | | | (_| | | | | | | | | | | (_| |
 |_| |_|\__,_|_| |_| |_|_|_| |_|\__, |
-                               |___/ 
-                                _   _                 
-  ___ ___  _ ____   _____ _ __ | |_(_) ___  _ __  ___ 
+                               |___/
+                                _   _
+  ___ ___  _ ____   _____ _ __ | |_(_) ___  _ __  ___
  / __/ _ \| '_ \ \ / / _ \ '_ \| __| |/ _ \| '_ \/ __|
 | (_| (_) | | | \ V /  __/ | | | |_| | (_) | | | \__ \
  \___\___/|_| |_|\_/ \___|_| |_|\__|_|\___/|_| |_|___/
-                                                      
+
 HTML:
     #hyphen-between-id-words
     .hyphen-between-class-words
@@ -74,20 +75,18 @@ Variables:
     const myVariable    // YES - variable will have block-level scope
 */
 
-
-  
 debugger;
 
 const AASMVERSION = "1.51";
-  
+
 (function () {
     'use strict';
 
-    /*       _____           __  
-      /\  /\/__   \ /\/\    / /  
-     / /_/ /  / /\//    \  / /   
-    / __  /  / /  / /\/\ \/ /___ 
-    \/ /_/   \/   \/    \/\____/ 
+    /*       _____           __
+      /\  /\/__   \ /\/\    / /
+     / /_/ /  / /\//    \  / /
+    / __  /  / /  / /\/\ \/ /___
+    \/ /_/   \/   \/    \/\____/
     */
     // HTML SCAFFOLDING - CONTROLS
     // NOTE: <div>'s where one might put <label> or <span>. This is to avoid unwanted Alemba CSS
@@ -124,11 +123,11 @@ const AASMVERSION = "1.51";
     `;
 
     /*
-       ___  __  __    
-      / __\/ _\/ _\   
-     / /   \ \ \ \    
-    / /___ _\ \_\ \   
-    \____/ \__/\__/  
+       ___  __  __
+      / __\/ _\/ _\
+     / /   \ \ \ \
+    / /___ _\ \_\ \
+    \____/ \__/\__/
     */
 
     // INJECT Augmented-ASM CSS
@@ -144,12 +143,12 @@ const AASMVERSION = "1.51";
     document.head.appendChild(animate);
 
     /*
-         _ _     _               
-     ___| (_) __| | ___ _ __ ___ 
+         _ _     _
+     ___| (_) __| | ___ _ __ ___
     / __| | |/ _` |/ _ \ '__/ __|
     \__ \ | | (_| |  __/ |  \__ \
     |___/_|_|\__,_|\___|_|  |___/
-                                
+
     */
 
     // FIRST SLIDER - (TAB CONTENTS)
@@ -188,7 +187,7 @@ const AASMVERSION = "1.51";
     sliderDescription.value = 1.3;
     const _adjust_row_height_ = () => {
         const asmIframes = document.querySelectorAll(".busy-content");
-        
+
         for (let i = 0; i < asmIframes.length; i++) {
             if (!asmIframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.getElementById(`description-css${i}`)) {
                 // create <style>
@@ -197,7 +196,7 @@ const AASMVERSION = "1.51";
                 descriptionCss.innerHTML = "";
                 asmIframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.body.appendChild(descriptionCss);
             }
-            
+
             if (sliderDescription.value != 1.3) {
                 asmIframes[i].contentWindow.document.querySelector("[name='Main']").contentWindow.document.getElementById(`description-css${i}`).innerHTML = `
                 .e-rowcell .string-container {
@@ -218,14 +217,14 @@ const AASMVERSION = "1.51";
         }
     }
     sliderDescription.addEventListener("input", _adjust_row_height_);
-    
+
     /*
-     _           _   _                  
-    | |__  _   _| |_| |_ ___  _ __  ___ 
+     _           _   _
+    | |__  _   _| |_| |_ ___  _ __  ___
     | '_ \| | | | __| __/ _ \| '_ \/ __|
     | |_) | |_| | |_| || (_) | | | \__ \
     |_.__/ \__,_|\__|\__\___/|_| |_|___/
-                                    
+
     */
 
     /*----------------------------------
@@ -243,7 +242,7 @@ const AASMVERSION = "1.51";
         document.querySelector("#aasm-controls").style.display = "flex";
         document.querySelector("#aasm-controls-2").style.display = "none";
     });
-    
+
     /*----------------------------------
     ||       AUGMENT
     ---------------------------------------------------------*/
@@ -251,12 +250,12 @@ const AASMVERSION = "1.51";
     const _augment = () => {
         augmentIsOn = ~augmentIsOn; // toggle
         let btn = document.querySelector("#btn-augment");
-        
+
         if (augmentIsOn) {
             navbarFix(true);
             readability_mode_(true);
         }
-        
+
         if (!augmentIsOn) {
             navbarFix(false);
             readability_mode_(false);
@@ -264,20 +263,20 @@ const AASMVERSION = "1.51";
 
         // toggle [augment] button style accordingly
         (augmentIsOn) ? btn.classList.add("aasm-button-active") : btn.classList.remove("aasm-button-active");
-        
+
     };
     document.querySelector("#btn-augment").addEventListener("click", _augment);
-    
+
     /*----------------------------------
     ||       DARK MODE
     ---------------------------------------------------------*/
     let darkModeIsOn = false; // boolean flag
-    
+
     // tint <style> element. This is the user's own choice of colour through the colour picker.
     const darkModeTintStyleElement = document.createElement('style');
     darkModeTintStyleElement.id = "dark-mode-tint";
     darkModeTintStyleElement.innerHTML = `:root {--tint: ${document.getElementById("colour-picker").value};}`;
-    
+
     // dark mode <style> element. This will need to be added to the very end of <head> to overwrite Alemba CSS.
     const darkModeRawCss = GM_getResourceText("DARK_MODE_CSS");
     const darkModeElement = GM_addStyle(darkModeRawCss);
@@ -285,7 +284,7 @@ const AASMVERSION = "1.51";
     document.getElementById("dark-mode").remove(); // GM_addStyle() returns a <style> element, yes, but it also adds it to the page which we don't want yet
     const interval = 500; // milliseconds to hold-off on pushing css <style> to end of <head> (which is needed to avoid flickering due to slowly loading Alemba CSS).
     let semaphore = true; // used in conjunction with async setTimeout calls to ensure syncronous behaviour.
-    
+
     /* modify_all_documents_(frames, callback, element)
     Alemba have iframes all over the place. This function crawls through the dom,
     passing each iframe's document into the callback function (second parameter).
@@ -297,16 +296,16 @@ const AASMVERSION = "1.51";
        if (frames.length === 0) {
            return;
         }
-        
+
         // apply the very first document
         if (frames === window.top.frames) {
             callback(frames.document, element);
         }
- 
+
         for (let i = 0; i < frames.length; i++) {
             // now apply to all children
             callback(frames[i].document, element);
-            
+
             // Douglas Hofstadter, baby (recurse back on self)
             modify_all_documents_(frames[i], callback, element);
         }
@@ -320,11 +319,11 @@ const AASMVERSION = "1.51";
                 <link>
                 ...
                 <style>  <-- element inserted here
-                <style>  
+                <style>
             </head>
             ...
         </html>
-        
+
     Unless head is empty, in which case it's inserted as its only child:
     document
         <html>
@@ -348,7 +347,7 @@ const AASMVERSION = "1.51";
             }
         }
     }
-    
+
     const remove_stylesheet = (document, element) => {
         if (document.contains(document.getElementById(`${element.id}`))) {
             document.getElementById(`${element.id}`).remove();
@@ -358,7 +357,7 @@ const AASMVERSION = "1.51";
     /* cascade_element(document, element)
     sends a <style> to the end of <head>. Used to ensure our own CSS
     is being applied instead of Alemba's.
-    
+
     The semaphore is there to slow things down otherwise there's an epileptic level of flicker
     when in dark mode. The reason for the flicker is that the Alemba server is very slow and so
     their style's 'trickle' in with our element getting pushed in front, immediately causing a flicker.
@@ -372,19 +371,19 @@ const AASMVERSION = "1.51";
             }, interval);
         }
     }
-    
+
     const _dark_mode = (event) => {
         darkModeIsOn = ~darkModeIsOn;
-        
+
         // style the button that was just pressed
         (darkModeIsOn) ? document.getElementById("btn-dark-mode").classList.add("aasm-button-active") : document.getElementById("btn-dark-mode").classList.remove("aasm-button-active");
-        
+
         // change Alemba's banner; they have it styled on the Element itself for some reason meaning no stylesheet could change it
         (darkModeIsOn) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
-        
+
         // add/remove the dark mode CSS
         (darkModeIsOn) ? modify_all_documents_(window.top.frames, add_stylesheet, darkModeElement) : modify_all_documents_(window.top.frames, remove_stylesheet, darkModeElement)
-        
+
         // add/remove the dark mode tint
         // (darkModeIsOn) ? modify_all_documents_(window.top.frames, add_stylesheet, darkModeTintStyleElement) : modify_all_documents_(window.top.frames, remove_stylesheet, darkModeTintStyleElement)
         /* NOTE: for some reason the above code falls over when the flag is false, i.e., when removing the <style> element.
@@ -417,10 +416,10 @@ const AASMVERSION = "1.51";
     document.querySelector("#aasm-controls #btn-default").addEventListener("click", () => {
         // toggle buttons if they're on.
         (augmentIsOn) ? _augment(): null;
-        
+
         // toggle darkmode if it's on
         (darkModeIsOn) ? _dark_mode() : null;
-        
+
         // reset 1st slider (tab content size)
         sliderContents.value = 1.5; // visual: puts the slider back to the middle (1.5 is middle value)
         const tabs = document.querySelectorAll(".tab");
@@ -437,7 +436,7 @@ const AASMVERSION = "1.51";
             tabsCloseIcon[i].style.height = "16px";
             // all above values are simply the default values initially set by Alemba 
         }
-        
+
         // reset 2nd slider (tab width)
         sliderMaxWidth.value = 0.5;
         for (let i = 0; i < tabsInnerText.length; i++) {
@@ -448,26 +447,26 @@ const AASMVERSION = "1.51";
         sliderDescription.value = 1;
         _adjust_row_height_();
     });
-    
+
     // BUTTON ABOUT
     document.querySelector("#aasm-controls #btn-about").addEventListener("click", () => {
         window.open("https://confluence.csiro.au/display/~edw19b/Augmented-ASM");
     });
-    
+
     // BUTTON UPDATE
     document.querySelector("#aasm-controls #btn-update").addEventListener("click", () => {
         window.open("https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js");
     });
 
     /*
-      __            _                       
-     / _| ___  __ _| |_ _   _ _ __ ___  ___ 
+      __            _
+     / _| ___  __ _| |_ _   _ _ __ ___  ___
     | |_ / _ \/ _` | __| | | | '__/ _ \/ __|
     |  _|  __/ (_| | |_| |_| | | |  __/\__ \
     |_|  \___|\__,_|\__|\__,_|_|  \___||___/
-                                         
+
     */
-    
+
     /*----------------------------------
     ||       NAVBAR FIX
     ---------------------------------------------------------*/
@@ -475,7 +474,7 @@ const AASMVERSION = "1.51";
         const e = document.querySelector("#AlembaToolbar .navbar-nav");
         (toggleOn) ? e.style.minWidth = "570px": e.style.minWidth = "410px";
     }
-    
+
     /*----------------------------------
     ||       READABILITY MODE
     ---------------------------------------------------------*/
@@ -484,7 +483,7 @@ const AASMVERSION = "1.51";
     const readabilityModeElement = GM_addStyle(readabilityModeRawCSS);
     readabilityModeElement.id = "readability-mode";
     document.getElementById("readability-mode").remove(); // GM_addStyle() returns a <style> element, yes, but it also adds it to the page which we don't want yet
-    
+
     const readability_mode_ = function(toggle) {
         // ASM deliver tabbed content through iframes. We must go through each document
         // and append our own <style> tag in each <head>, ensuring all tabs are re-styled.
@@ -494,7 +493,7 @@ const AASMVERSION = "1.51";
             modify_all_documents_(window.top.frames, add_stylesheet, readabilityModeElement);
             modify_all_documents_(window.top.frames, cascade_element, readabilityModeElement);
         }
-        
+
         // REMOVE
         if (!toggle) {
             modify_all_documents_(window.top.frames, remove_stylesheet, readabilityModeElement);
@@ -512,14 +511,17 @@ const AASMVERSION = "1.51";
         const cssFooGroups = ".e-list-item.e-level-1 .e-text-content img+span div span";
         let names;
 
-        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;")
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_").getAttribute("style") != "display: none;") {
             names = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_ ${cssFoo}`);
+        }
 
-        if (activeDocument.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;")
+        if (activeDocument.querySelector("#SPAN_IN_GROUPS_").getAttribute("style") != "display: none;") {
             names = activeDocument.querySelectorAll(`#SPAN_IN_GROUPS_ ${cssFooGroups}`);
+        }
 
-        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;")
+        if (activeDocument.querySelector("#SPAN_IN_OFFICERS_BY_GROUP_").getAttribute("style") != "display: none;") {
             names = activeDocument.querySelectorAll(`#SPAN_IN_OFFICERS_BY_GROUP_ ${cssFoo}`);
+        }
 
         /* The below simulates a fair-dinkum click of the mouse. It's requried because it's not possible
             to use standard document interaction due to Alemba's watchdog listeners that intercept everything
@@ -655,12 +657,14 @@ const AASMVERSION = "1.51";
     ---------------------------------------------------------*/
     const add_fire_ = () => {
         // daemon will hit this often so return if we're not in the right spot
-        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire"))
+        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire")) {
             return;
+        }
 
         // return if fire has already been added
-        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire"))
+        if (!!document.activeElement.contentWindow.document.activeElement.contentWindow.document.querySelector("#aasm-fire")) {
             return;
+        }
 
         // add fire element
         const fire = document.createElement("div");
@@ -777,11 +781,13 @@ const AASMVERSION = "1.51";
         e.parentNode.removeChild(e);
 
         // insert real tab
-        if (dragAndDropState.position === "left")
+        if (dragAndDropState.position === "left") {
             dragAndDropState.nearestTab.insertAdjacentElement('beforebegin', dragAndDropState.draggedTab);
+        }
 
-        if (dragAndDropState.position === "right")
+        if (dragAndDropState.position === "right") {
             dragAndDropState.nearestTab.insertAdjacentElement('afterend', dragAndDropState.draggedTab);
+        }
 
         // undo Edge hack (makes 'close' icons [x] clickable again)
         const children = document.querySelectorAll("li.tab div");
@@ -830,12 +836,12 @@ const AASMVERSION = "1.51";
     };
 
     /*
-             _           _       _     _             _   _           
-    __ _  __| |_ __ ___ (_)_ __ (_)___| |_ _ __ __ _| |_(_)_   _____ 
+             _           _       _     _             _   _
+    __ _  __| |_ __ ___ (_)_ __ (_)___| |_ _ __ __ _| |_(_)_   _____
    / _` |/ _` | '_ ` _ \| | '_ \| / __| __| '__/ _` | __| \ \ / / _ \
   | (_| | (_| | | | | | | | | | | \__ \ |_| | | (_| | |_| |\ V /  __/
    \__,_|\__,_|_| |_| |_|_|_| |_|_|___/\__|_|  \__,_|\__|_| \_/ \___|
-                                                                     
+
    */
 
    /*----------------------------------
@@ -886,8 +892,9 @@ const AASMVERSION = "1.51";
     // The button itself will be displayed (css: display === "block") when an this script version is behind -see log_usage() function for more info on how that works.
     const advertise_update = () => {
         const btn = document.querySelector("#btn-update");
-        if (btn.style.display === "none")
+        if (btn.style.display === "none") {
             return;
+        }
 
         // now wobble the update button every n milliseconds
         setInterval( () => {
@@ -900,8 +907,6 @@ const AASMVERSION = "1.51";
             });
         }, 30000); // 5 minutes; we want to be subtle not aggressive
     };
-
-    
 
     /*----------------------------------
     ||    DAEMON
@@ -947,7 +952,7 @@ const AASMVERSION = "1.51";
 
     // advertise update
     advertise_update();
-    
+
     // Turn on initially
     _augment();
 
