@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.52
+// @version      1.51
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -78,7 +78,7 @@ Variables:
   
 debugger;
 
-const AASMVERSION = "1.52";
+const AASMVERSION = "1.51";
   
 (function () {
     'use strict';
