@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.51
+// @version      1.52
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -9,7 +9,7 @@
 // @updateURL    https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @downloadURL  https://github.com/george-edwards-code/Augmented-ASM/raw/master/Augmented-ASM.user.js
 // @resource     AASM_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/aasm.css
-// @resource     READABILITY_MODE__CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/readability-mode.css
+// @resource     READABILITY_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/readability-mode.css
 // @resource     DARK_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/dark-mode.css
 // @connect      samsara-nc
 // @grant        GM_xmlhttpRequest
@@ -28,11 +28,11 @@
     A series of Javascript functions that do stuff to the page.
 
     There are CSS files that get loaded into memory (see @resource declarations above) and
-    are inserted/removed into the dom at various times (for example thee's a 'dark mode').
+    are inserted/removed into the dom at various times (for example there's a 'dark mode').
 
     There is a daemon which runs every 500 milliseconds. The daemon keeps watch of certain
-    flags and runs or doesn't run functions. This is how something can be applied to a page
-    that doesn't exist in the dom when the user toggles it, but will be applied once it exists.
+    flags and either runs or doesn't run various functions. This is how something can be applied to a page
+    that doesn't exist in the DOM when the user toggles it on. The daemon will keep watch and apply once it exists.
 
     All headings made with the 'ogre' font here: http://www.network-science.de/ascii/
 */
@@ -63,9 +63,9 @@ Functions:
     No declarative Functions to avoid polluting global namespace. Function expressions used instead.
     Yes, TamperMonkey respects @namespace declaration but it's still a good practice to practise.
 
-    function some_function(parameterOne, parameterTwo) {}           // NO - function's scope can pollute global namespace
-    const some_function = (parameterOne, parameterTwo) => {}        // YES - 'let' also fine.
-    const some_function = function(parameterOne, parameterTwo) {}   // YES - 'let' also fine.
+    function something() {}           // NO - function's scope can pollute global namespace
+    const something = () => {}        // YES - 'let' also fine.
+    const something = function() {}   // YES - 'let' also fine.
 
 Variables:
     camelCase always; local scope only; booleans to be verbed, eg: lightIsFlashing, flagIsUp, somethingIsTrue
@@ -77,7 +77,7 @@ Variables:
 
 debugger;
 
-const AASMVERSION = "1.51";
+const AASMVERSION = "1.52";
 
 (function () {
     'use strict';
@@ -246,10 +246,10 @@ const AASMVERSION = "1.51";
     /*----------------------------------
     ||       AUGMENT
     ---------------------------------------------------------*/
-    let augmentIsOn = false; // boolean flag
+    let augmentIsOn = false;
     const _augment = () => {
-        augmentIsOn = ~augmentIsOn; // toggle
-        let btn = document.querySelector("#btn-augment");
+        augmentIsOn = ~augmentIsOn;
+        const btn = document.querySelector("#btn-augment");
 
         if (augmentIsOn) {
             navbarFix(true);
@@ -270,80 +270,76 @@ const AASMVERSION = "1.51";
     /*----------------------------------
     ||       DARK MODE
     ---------------------------------------------------------*/
-    let darkModeIsOn = false; // boolean flag
+    /* Adds two <style> elements to every iframe document's <head>.
+    The first <style> element contains the dark mode CSS.
+    The other <style> element contains the user's preference of "tint" colour, which they can choose through a colour picker.
 
-    // tint <style> element. This is the user's own choice of colour through the colour picker.
-    const darkModeTintStyleElement = document.createElement('style');
-    darkModeTintStyleElement.id = "dark-mode-tint";
-    darkModeTintStyleElement.innerHTML = `:root {--tint: ${document.getElementById("colour-picker").value};}`;
+    These two style elements are held in memory and clones of them are inserted and removed.
 
-    // dark mode <style> element. This will need to be added to the very end of <head> to overwrite Alemba CSS.
-    const darkModeRawCss = GM_getResourceText("DARK_MODE_CSS");
-    const darkModeElement = GM_addStyle(darkModeRawCss);
-    darkModeElement.id = "dark-mode";
-    document.getElementById("dark-mode").remove(); // GM_addStyle() returns a <style> element, yes, but it also adds it to the page which we don't want yet
-    const interval = 500; // milliseconds to hold-off on pushing css <style> to end of <head> (which is needed to avoid flickering due to slowly loading Alemba CSS).
-    let semaphore = true; // used in conjunction with async setTimeout calls to ensure syncronous behaviour.
+    The tint colour will be <head>'s second-last child.
+    The Dark Mode will be <head>'s last child.
 
-    /* modify_all_documents_(frames, callback, element)
-    Alemba have iframes all over the place. This function crawls through the dom,
-    passing each iframe's document into the callback function (second parameter).
-    The first argument should be 'window.top.frames' to cover entire dom, else
-    window.frames to start traversing from only the current iframe in focus (never used this way)
-    */
-    const modify_all_documents_ = (frames, callback, element) => {
-       // stop recursion if at leaf.
-       if (frames.length === 0) {
-           return;
-        }
-
-        // apply the very first document
-        if (frames === window.top.frames) {
-            callback(frames.document, element);
-        }
-
-        for (let i = 0; i < frames.length; i++) {
-            // now apply to all children
-            callback(frames[i].document, element);
-
-            // Douglas Hofstadter, baby (recurse back on self)
-            modify_all_documents_(frames[i], callback, element);
-        }
-    }
-
-    /* add_stylesheet(document, element)
-    Adds <style> element to the document's <head> as its second-last child. Like this:
     document
         <html>
             <head>
                 <link>
                 ...
-                <style>  <-- element inserted here
-                <style>
+                <style>  <-- tint colour
+                <style>  <-- dark mode css
             </head>
             ...
         </html>
 
-    Unless head is empty, in which case it's inserted as its only child:
-    document
-        <html>
-            <head>
-                <style>  <-- element inserted here
-            </head>
-        ...
-        </html>
-    The reason for inserting as second-last child is to stop flickering when the user
-    changes the "tint" colour in dark-mode. This flickering happens because the <style>
-    containing the new tint colour is inserted at the end, /after/ the <style>
-    for dark-mode and so things are repainted. The C in CSS stands for cascade after all.
+    The reason for inserting as second-last child is to stop flickering when the user changes the tint colour.
+    This flickering happened because when the <style> containing the new tint colour was inserted /after/
+    dark-mode then things were repainted, after all, the C in CSS stands for cascading.
     */
-    const add_stylesheet = (doc, element) => {
+    let darkModeIsOn = false;
+
+    // Tint colour element, like this: <style> :root {--tint: #123456;} </style>
+    const darkModeTintStyleElement = document.createElement('style');
+    darkModeTintStyleElement.id = "dark-mode-tint";
+    darkModeTintStyleElement.innerHTML = `:root {--tint: ${document.getElementById("colour-picker").value};}`;
+
+    // Dark mode <style> element.
+    const darkModeRawCss = GM_getResourceText("DARK_MODE_CSS");
+    const darkModeElement = GM_addStyle(darkModeRawCss);
+    darkModeElement.id = "dark-mode";
+    document.getElementById("dark-mode").remove(); // GM_addStyle() returns a <style> element, yes, but it also adds it to the page which we don't want yet
+
+    /* Recursive function that takes a NodeList of frames, a callback function and a <style> element as parameters arguments.
+    It will crawl through the DOM, plucking out every iframe and sending its "document" property into the callback as an argument, along with the element parameter.
+    It'll be up to the callback function to manipulate the document with the element however it wants (for example: removing the element from the document)
+    If the first parameter is arguably 'window.top.frames' then it'll cover the entire dom, else 'window.frames' will only traverse from the current frame in focus (never used this way)
+    */
+    const modify_all_documents_ = (frames, callback, element) => {
+        // stop recursion if at leaf.
+        if (frames.length === 0) {
+            return;
+        }
+
+        // callback on the very first document
+        if (frames === window.top.frames) {
+            callback(frames.document, element);
+        }
+
+        for (let i = 0; i < frames.length; i++) {
+            // callback on all children documents
+            callback(frames[i].document, element);
+
+            // Douglas Hofstadter, baby
+            modify_all_documents_(frames[i], callback, element);
+        }
+    }
+
+    /* Adds a copy of element to document's <head> as second-last child (if possible, otherwise as only child) */
+    const add_stylesheet = (document, element) => {
         // only add element if it's not already there
-        if (!doc.contains(doc.getElementById(`${element.id}`))) {
+        if (!document.contains(document.getElementById(`${element.id}`))) {
             if (element.children.length === 0) {
-                doc.head.append(element.cloneNode(true));
+                document.head.append(element.cloneNode(true));
             } else {
-                doc.head.lastElementChild.insertAdjacentElement('beforebegin', element.cloneNode(true));
+                document.head.lastElementChild.insertAdjacentElement('beforebegin', element.cloneNode(true));
             }
         }
     }
@@ -354,20 +350,34 @@ const AASMVERSION = "1.51";
         }
     }
 
-    /* cascade_element(document, element)
-    sends a <style> to the end of <head>. Used to ensure our own CSS
-    is being applied instead of Alemba's.
+    const move_element_to_second_last_place = (document, element) => {
+        if (document.getElementById(element.id).nextSibling.nextSibling != null) {
+            document.head.lastElementChild.insertAdjacentElement('beforebegin', document.getElementById(element.id));
+        }
+    }
 
-    The semaphore is there to slow things down otherwise there's an epileptic level of flicker
-    when in dark mode. The reason for the flicker is that the Alemba server is very slow and so
-    their style's 'trickle' in with our element getting pushed in front, immediately causing a flicker.
-    Well, not quite immediately but every 500 milliseconds (500? according to augmented_asm_daemon()'s interval call) */
-    const cascade_element = (document, element) => {
-        if (semaphore && document.getElementById(`${element.id}`).nextSibling != null) {
-            semaphore = false;
+    /* move_element_to_last_place(document, element)
+    Moves the element to the end of the document's <head>. This ensures our own <style> element is being applied instead of Alemba's
+    and is important when a new iframe is created (like when opening an existing ticket 'cause it'll start out bright).
+
+    The setTimeout() is there to slow things down otherwise there's an epileptic level of flicker. Alemba's server
+    is really slow so their <style> elements only trickle-in (and there's hundreds). Each time we cascade ours past theirs the screen flashes because
+    their styles are being overwritten by ours. This flashing is reduced (but not eliminated) by holding-off on cascading our
+    style by some interval, ensuring we cascade past many of theirs at once.
+
+    The semaphore 🚩🙅‍♂️ is there to ensure the setTimeout behaves as though it's synchronous. The daemon runs often
+    and so if dark mode is toggled this ends up getting executed often. Without the semaphore, the delay would apply
+    to every execution independently as opposed to /across/ different executions. In other words, we wouldn't be slowing
+    things down by some interval, we'd be time-shifting. (it works 'cause semaphore variable is stored in memory which is atomic)
+    */
+    let semaphoreSaysGoAhead = true;
+    const interval = 500; // delay to wait before pushing our element to the end of <head>
+    const move_element_to_last_place = (document, element) => {
+        if (semaphoreSaysGoAhead && document.getElementById(`${element.id}`).nextSibling != null) {
+            semaphoreSaysGoAhead = false; // 🚩🙅‍♂️ <-- man signals "stop"
             setTimeout(() => {
-                semaphore = true;
-                document.head.appendChild(document.getElementById(`${element.id}`)); // appendChild will move the element, i.e., remove then read at the end.
+                document.head.appendChild(document.getElementById(`${element.id}`)); // appendChild will move the element, i.e., no need to remove then re-add.
+                semaphoreSaysGoAhead = true; // 🚩🙅‍♂️ <-- "go ahead" because the timeout has finished.
             }, interval);
         }
     }
@@ -378,7 +388,7 @@ const AASMVERSION = "1.51";
         // style the button that was just pressed
         (darkModeIsOn) ? document.getElementById("btn-dark-mode").classList.add("aasm-button-active") : document.getElementById("btn-dark-mode").classList.remove("aasm-button-active");
 
-        // change Alemba's banner; they have it styled on the Element itself for some reason meaning no stylesheet could change it
+        // change Alemba's banner (they have it styled on the Element itself for some weird reason meaning no stylesheet could apply)
         (darkModeIsOn) ? document.querySelector("nav").style = "" : document.querySelector("nav").style = `background-image: linear-gradient(rgb(206, 217, 233), rgb(244, 246, 251)) !important;`;
 
         // add/remove the dark mode CSS
@@ -386,11 +396,11 @@ const AASMVERSION = "1.51";
 
         // add/remove the dark mode tint
         // (darkModeIsOn) ? modify_all_documents_(window.top.frames, add_stylesheet, darkModeTintStyleElement) : modify_all_documents_(window.top.frames, remove_stylesheet, darkModeTintStyleElement)
-        /* NOTE: for some reason the above code falls over when the flag is false, i.e., when removing the <style> element.
+        /* NOTE: for some reason the above code fails when the flag is false, i.e., when removing the <style> element.
         Alemba's jQuery catches the following error: Uncaught TypeError: modify_all_documents_(...) is not a function.
-        The reason for this error is beyond my knowledge, every other call to that function is fine.
-        Because of this the <style> will simply remain in the dom; there's no harm there because it's just
-        one line of CSS, a line containing a colour variable named --tint which is never referenced by Alemba, & looks like this: `:root {--tint: #123456;}`
+        The reason is beyond my knowledge and every other call to that function is fine. Because of this, the <style> will simply
+        have to remain in the DOM; there's no harm in that because it's just one line of CSS, a line containing a colour variable named --tint
+        which is never referenced by Alemba. It looks like this: `:root {--tint: #123456;}`
         */
        if (darkModeIsOn) {
            modify_all_documents_(window.top.frames, add_stylesheet, darkModeTintStyleElement)
@@ -399,7 +409,7 @@ const AASMVERSION = "1.51";
     document.querySelector("#btn-dark-mode").addEventListener("click", _dark_mode);
 
     /* User has used the colour picker:
-        record the new colour as a CSS variable called: --tint.
+        record the new colour into CSS variable called: --tint.
         Then remove and re-add the "tint" <syle> from the DOM ...but only if the user has dark mode on.
     */
    document.querySelector("#colour-picker").addEventListener("input", (event) => {
@@ -414,10 +424,10 @@ const AASMVERSION = "1.51";
     ||       DEFAULT
     ---------------------------------------------------------*/
     document.querySelector("#aasm-controls #btn-default").addEventListener("click", () => {
-        // toggle buttons if they're on.
+        // toggle augment off if necessary
         (augmentIsOn) ? _augment(): null;
 
-        // toggle darkmode if it's on
+        // toggle darkmode off if necessary
         (darkModeIsOn) ? _dark_mode() : null;
 
         // reset 1st slider (tab content size)
@@ -479,23 +489,20 @@ const AASMVERSION = "1.51";
     ||       READABILITY MODE
     ---------------------------------------------------------*/
     // <style> element
-    const readabilityModeRawCSS = GM_getResourceText("READABILITY_MODE__CSS");
+    const readabilityModeRawCSS = GM_getResourceText("READABILITY_MODE_CSS");
     const readabilityModeElement = GM_addStyle(readabilityModeRawCSS);
     readabilityModeElement.id = "readability-mode";
     document.getElementById("readability-mode").remove(); // GM_addStyle() returns a <style> element, yes, but it also adds it to the page which we don't want yet
 
-    const readability_mode_ = function(toggle) {
+    const readability_mode_ = function(toggleOn) {
         // ASM deliver tabbed content through iframes. We must go through each document
         // and append our own <style> tag in each <head>, ensuring all tabs are re-styled.
         // This allows us to undo by removing each <style> tag appropriately.
-        // APPLY
-        if (toggle) {
+        if (toggleOn) {
             modify_all_documents_(window.top.frames, add_stylesheet, readabilityModeElement);
-            modify_all_documents_(window.top.frames, cascade_element, readabilityModeElement);
         }
 
-        // REMOVE
-        if (!toggle) {
+        if (!toggleOn) {
             modify_all_documents_(window.top.frames, remove_stylesheet, readabilityModeElement);
         }
     }
@@ -692,7 +699,7 @@ const AASMVERSION = "1.51";
     // Reorder tabs with Drag and Drop API. This API came with HTML5
     // Source: https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
     // Some notes:
-    //  [*] _onDragOver() and _onDrop() must exist for on an element to be considered a dropzone
+    //  [*] _on_drag_over() and _on_drop() must exist for on an element to be considered a dropzone
     //  [*] event.preventDefault(); prevents the browser's default reaction to getting something dropped on. Typically
     //      it'll try and open(thing_dropped) as if it was a file. Well, that's Firefox's behaviour at least.
     const dragAndDropState = {
@@ -708,9 +715,9 @@ const AASMVERSION = "1.51";
     fakeBlueTab.style.position = "relative";
     fakeBlueTab.style.pointerEvents = "none";
 
-    const _onDragStart = (event) => {
+    const _on_drag_start = (event) => {
         fakeBlueTab.style.width = event.target.getBoundingClientRect().width; // set indication tab's width
-        event.dataTransfer.effectAllowed = "move"; // allows 'move' cursor to be set in _onDragOver()
+        event.dataTransfer.effectAllowed = "move"; // allows 'move' cursor to be set in _on_drag_over()
         dragAndDropState.draggedTab = event.target; // save reference to tab being dragges
         const blankCanvas = document.createElement('canvas');
         event.dataTransfer.setDragImage(blankCanvas, 0, 0); // remove "ghost image" from cursor
@@ -721,13 +728,13 @@ const AASMVERSION = "1.51";
             event.target.parentNode.removeChild(event.target);
         }, 0);
 
-        // Edge incorrectly fires _onDragEnd() when hovering over child elements with pointer events, like our close-icon [x]
+        // Edge incorrectly fires _on_drag_end() when hovering over child elements with pointer events, like our close-icon [x]
         // Fix courtesy of: https://stackoverflow.com/a/14027995
         const children = document.querySelectorAll("li.tab div");
-        for (let c of children) { c.style.pointerEvents = "none"; } // will be undone in _onDrop()
+        for (let c of children) { c.style.pointerEvents = "none"; } // will be undone in _on_drop()
     };
 
-    const _onDragOver = (event) => {
+    const _on_drag_over = (event) => {
         event.dataTransfer.dropEffect = "move";
         // Indicate the new position while we drag the tab.
         // This is done by inserting a fake, blue tab somewhere. To work out where, we find which tab the
@@ -743,8 +750,7 @@ const AASMVERSION = "1.51";
             const tabDimensions = t.getBoundingClientRect();
             const middle = tabDimensions.x + tabDimensions.width / 2; // only x dimension matters.
             const mouseDistanceFromCurrentTab = Math.abs(event.clientX - middle);
-            if (mouseDistanceFromCurrentTab < mouseDistanceMinimum)
-            {
+            if (mouseDistanceFromCurrentTab < mouseDistanceMinimum) {
                 mouseDistanceMinimum = mouseDistanceFromCurrentTab;
                 nearestTab = t;
             }
@@ -757,14 +763,12 @@ const AASMVERSION = "1.51";
         const mouseDistanceFromRight = Math.abs(event.clientX - tabDimensions.right);
 
         // insert fake, blue tab
-        if (mouseDistanceFromLeft < mouseDistanceFromRight)
-        {
+        if (mouseDistanceFromLeft < mouseDistanceFromRight) {
             position = "left";
             nearestTab.insertAdjacentElement('beforebegin', fakeBlueTab);
         }
 
-        if (mouseDistanceFromRight < mouseDistanceFromLeft)
-        {
+        if (mouseDistanceFromRight < mouseDistanceFromLeft) {
             position = "right";
             nearestTab.insertAdjacentElement('afterend', fakeBlueTab);
         }
@@ -775,7 +779,7 @@ const AASMVERSION = "1.51";
         event.preventDefault();
     };
 
-    const _onDrop = (event) => {
+    const _on_drop = (event) => {
         // remove fake, blue tab
         const e = document.getElementById("aasm-indication-tab");
         e.parentNode.removeChild(e);
@@ -795,7 +799,7 @@ const AASMVERSION = "1.51";
         event.preventDefault();
     };
 
-    const _onDragEnd = (event) => {
+    const _on_drag_end = (event) => {
         // if user let go out of bounds, add tab back to dom and remove fake, blue tab
         if (!document.body.contains(dragAndDropState.draggedTab)) {
             document.querySelector("ul.inner-tab-view").appendChild(dragAndDropState.draggedTab);
@@ -815,23 +819,23 @@ const AASMVERSION = "1.51";
         const tabs = document.querySelectorAll("li.tab");
         for (let t of tabs) {
             t.setAttribute("draggable", "true");
-            t.addEventListener("dragend", _onDragEnd);
+            t.addEventListener("dragend", _on_drag_end);
         }
         const dropzone = document.querySelector(".outer-tab-view");
-        dropzone.addEventListener("dragstart", _onDragStart);
-        dropzone.addEventListener("dragover", _onDragOver);
-        dropzone.addEventListener("drop", _onDrop);
+        dropzone.addEventListener("dragstart", _on_drag_start);
+        dropzone.addEventListener("dragover", _on_drag_over);
+        dropzone.addEventListener("drop", _on_drop);
     };
 
     const disable_tab_reordering_ = () => {
         const dropzone = document.querySelector(".outer-tab-view");
-        dropzone.removeEventListener("dragstart", _onDragStart);
-        dropzone.removeEventListener("dragover", _onDragOver);
-        dropzone.removeEventListener("drop", _onDrop);
+        dropzone.removeEventListener("dragstart", _on_drag_start);
+        dropzone.removeEventListener("dragover", _on_drag_over);
+        dropzone.removeEventListener("drop", _on_drop);
         const tabs = document.querySelectorAll("li.tab");
         for (let t of tabs) {
             t.removeAttribute("draggable");
-            t.removeEventListener("dragend", _onDragEnd);
+            t.removeEventListener("dragend", _on_drag_end);
         }
     };
 
@@ -915,7 +919,7 @@ const AASMVERSION = "1.51";
         if (darkModeIsOn) {
             modify_all_documents_(window.top.frames, add_stylesheet, darkModeElement)
             modify_all_documents_(window.top.frames, add_stylesheet, darkModeTintStyleElement)
-            modify_all_documents_(window.top.frames, cascade_element, darkModeElement)
+            modify_all_documents_(window.top.frames, move_element_to_last_place, darkModeElement)
         }
 
         // `Augment` button off? Go no further
@@ -926,25 +930,31 @@ const AASMVERSION = "1.51";
         };
 
         // apply readability mode for any new tabs.
-        readability_mode_(true);
+        try {readability_mode_(true)} catch {null}
+        if (darkModeIsOn) {
+            try {modify_all_documents_(window.top.frames, move_element_to_second_last_place, readabilityModeElement)} catch{null}
+        }
+        if (!darkModeIsOn) {
+            try {modify_all_documents_(window.top.frames, move_element_to_last_place, readabilityModeElement)} catch{null}
+        }
 
         // apply sliders to any new tabs
-        try { _adjust_tab_content_size_(); } catch { null; }
-        try { _adjust_tab_width_(); } catch { null; }
-        try { _adjust_row_height_(); } catch { null; }
+        try {_adjust_tab_content_size_()} catch {null}
+        try {_adjust_tab_width_()} catch {null}
+        try {_adjust_row_height_()} catch {null}
 
 
         // apply enable pasting into emails.
-        try { enable_paste_image_(); } catch { null; }
+        try {enable_paste_image_()} catch {null}
 
         // apply snap and search buttons
-        try { add_finger_and_search_icons_(); } catch { null; }
+        try {add_finger_and_search_icons_()} catch {null}
 
         // apply fire button (clear search)
-        try { add_fire_(); } catch { null; }
+        try {add_fire_()} catch {null}
 
         // apply tab reordering
-        try { enable_tab_reordering_(); } catch { null; }
+        try {enable_tab_reordering_()} catch {null}
     }
 
     // kick daemon off by calling function every n milliseconds
