@@ -358,17 +358,18 @@ const AASMVERSION = "1.52";
 
     /* move_element_to_last_place(document, element)
     Moves the element to the end of the document's <head>. This ensures our own <style> element is being applied instead of Alemba's
-    and is important when a new iframe is created (like when opening an existing ticket 'cause it'll start out bright).
+    and is important when a new iframe is created and user has toggled dark mode. For example: opening a ticket starts out bright.
 
     The setTimeout() is there to slow things down otherwise there's an epileptic level of flicker. Alemba's server
-    is really slow so their <style> elements only trickle-in (and there's hundreds). Each time we cascade ours past theirs the screen flashes because
-    their styles are being overwritten by ours. This flashing is reduced (but not eliminated) by holding-off on cascading our
-    style by some interval, ensuring we cascade past many of theirs at once.
+    is really slow so their <style> elements only trickle-in (and there's hundreds). Each time we move ours past theirs the screen flashes because
+    their styles are being overwritten by ours. This flashing is reduced (but not eliminated) by holding-off on moving our
+    <style> by some interval, ensuring we move past many of theirs at once.
 
     The semaphore 🚩🙅‍♂️ is there to ensure the setTimeout behaves as though it's synchronous. The daemon runs often
     and so if dark mode is toggled this ends up getting executed often. Without the semaphore, the delay would apply
     to every execution independently as opposed to /across/ different executions. In other words, we wouldn't be slowing
-    things down by some interval, we'd be time-shifting. (it works 'cause semaphore variable is stored in memory which is atomic)
+    things down by some interval, we'd be time-shifting by that interval as all threads would be setTimeout'ing.
+    (this approach works because semaphore variable is stored in memory which is atomic)
     */
     let semaphoreSaysGoAhead = true;
     const interval = 500; // delay to wait before pushing our element to the end of <head>
