@@ -377,8 +377,8 @@ const AASMVERSION = "1.52";
         if (semaphoreSaysGoAhead && document.getElementById(`${element.id}`).nextSibling != null) {
             semaphoreSaysGoAhead = false; // 🚩🙅‍♂️ <-- man signals "stop"
             setTimeout(() => {
-                document.head.appendChild(document.getElementById(`${element.id}`)); // appendChild will move the element, i.e., no need to remove then re-add.
                 semaphoreSaysGoAhead = true; // 🚩🙅‍♂️ <-- "go ahead" because the timeout has finished.
+                document.head.appendChild(document.getElementById(`${element.id}`)); // appendChild will move the element, i.e., no need to remove then re-add.
             }, interval);
         }
     }
