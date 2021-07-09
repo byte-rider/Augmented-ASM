@@ -368,8 +368,8 @@ const AASMVERSION = "1.52";
     The semaphore 🚩🙅‍♂️ is there to ensure the setTimeout behaves as though it's synchronous. The daemon runs often
     and so if dark mode is toggled this ends up getting executed often. Without the semaphore, the delay would apply
     to every execution independently as opposed to /across/ different executions. In other words, we wouldn't be slowing
-    things down by some interval, we'd be time-shifting by that interval as all threads would be setTimeout'ing.
-    (this approach works because semaphore variable is stored in memory which is atomic)
+    things down by some interval, we'd be time-shifting by that interval as all function calls would be setTimeout'ing themselves.
+    (this approach works because semaphore variable is stored in memory and memory is atomic)
     */
     let semaphoreSaysGoAhead = true;
     const interval = 500; // delay to wait before pushing our element to the end of <head>
@@ -870,7 +870,7 @@ const AASMVERSION = "1.52";
             'time': Date.now(),
             'version': AASMVERSION,
             'scriptengine': scriptEngine,
-            'userstring': navigator.userAgent,
+            'userAgent': navigator.userAgent,
         };
 
         GM_xmlhttpRequest({

@@ -3,60 +3,53 @@ const filenameLogUnique = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augme
 const express = require('express');
 const fs = require('fs');
 const dns = require('dns');
+const fetch = require('node-fetch');
 const app = express();
 const PORT = 8080;
-const VERSION = 1.52;
+const CURRENT_VERSION = 1.52;
+const USER_AGENT_API_URL = "https://api.whatismybrowser.com/api/v2/user_agent_parse";
+const USER_AGENT_API_KEY = require('./api_key');
 
 app.use( express.json() ); // load json middleware
-
-// express.static() to serve local files. This is used to "@require" the script within Tampermonkey, allowing me to use VSCode
-// the second argument {etag: false} is to disable client-side caching.
-app.use('/static', express.static('./', {etag: false}) );
+app.use('/static', express.static('./', {etag: false}) ); // load static to serve local files; second argument disables client-side caching
 
 app.listen(PORT, () => console.log(`running on port ${PORT}`))
 
-function reverse_DNS_lookup(ip) {
-    return new Promise( (resolve, reject) => {
-        dns.lookupService(ip, 587, (err, host, service) =>  {
-            if (err) 
-            resolve(err);
+app.post('/wave-hello', async (req, res) => {
+    // send response (contains current version number so client knows if update available)
+    res.send( { version: CURRENT_VERSION } );
 
-            resolve(host);
-        });
-    })
-};
+    // discard me otherwise log fills up when testing
+    if (req.body.user === "Edwards, George") {
+        return;
+    }
 
-app.post('/wave-hello', (req, res) => {
     // load database into memory
-    let logData = JSON.parse(fs.readFileSync(filenameLog));
-    let logDataUnique = JSON.parse(fs.readFileSync(filenameLogUnique));
+    let log = JSON.parse(fs.readFileSync(filenameLog));
+    let logUnique = JSON.parse(fs.readFileSync(filenameLogUnique));
     let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress; // get incoming IP from request headers
-
-    // append incoming data with IP
-    req.body.ip = ip;
-
-    // append Hostname (async lookup) and write to disk.
-    reverse_DNS_lookup(ip)
-        .then((hostname) => {
-            req.body.hostname = hostname;
-        })
-
-        .finally(n => {
-            if (req.body.user === "Edwards, George") // discard me otherwise log fills up when testing
-                return;
-            logData.users.push(req.body);
-            fs.writeFileSync(filenameLog, JSON.stringify(logData, null, 2));
-        });
-
-    // append unique entry
-    if (!logDataUnique.users.find(e => e.user === req.body.user))
-        logDataUnique.users.push(req.body);
     
-    // write
-    fs.writeFileSync(filenameLogUnique, JSON.stringify(logDataUnique, null, 2))
+    // perform async functions
+    const hostname = reverse_DNS_lookup(ip);
+    const software = parse_user_agent(req.body.userstring);
+    const finished = await Promise.all([hostname, software]);
+    
+    // append data to incoming json body
+    req.body.hostname = finished[0];
+    req.body.software = finished[1];
 
-    // send response
-    res.send( { version: VERSION } );
+    // remove the userAgent string
+    delete req.body['userstring'];
+
+    // add to normal log and the unique log if it's a new user
+    log.users.push(req.body);
+    if (!logUnique.users.find(e => e.user === req.body.user)) {
+        logUnique.users.push(req.body);
+    }
+
+    // write
+    fs.writeFileSync(filenameLog, JSON.stringify(log, null, 2));
+    fs.writeFileSync(filenameLogUnique, JSON.stringify(logUnique, null, 2))
 })
 
 app.get('/wave-hello', (req, res) => {
@@ -74,3 +67,33 @@ app.get('/:other', (req, res) => {
     res.send( `what's this now? ☝️` );
 })
 
+function reverse_DNS_lookup(ip) {
+    return new Promise( (resolve, reject) => {
+        dns.lookupService(ip, 587, (err, host, service) =>  {
+            if (err) {
+                resolve(ip);
+            } else {
+                resolve(host);
+            }
+        });
+    })
+};
+
+function parse_user_agent(userAgent) {
+    let software;
+    return new Promise((resolve, reject) => {
+        fetch(USER_AGENT_API_URL, {
+            method: 'post',
+            body:   `{"user_agent": "${userAgent}"}`,
+            headers: { 'Content-Type': 'application/json',
+                       'X-API-KEY': USER_AGENT_API_KEY.API_KEY},
+            })
+        .then(response => response.json())
+        .then(json => {
+            software = json.parse.simple_software_string;
+            resolve(software);
+        })
+        .catch(error => console.error('😢 Parsing userAgent string has failed:', error));
+    })
+    
+}
