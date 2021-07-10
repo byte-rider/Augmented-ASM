@@ -1,5 +1,6 @@
 const filenameLog = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log.json";
 const filenameLogUnique = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log-unique.json";
+const gameScoreboard = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\game-scoreboard.json";
 const express = require('express');
 const fs = require('fs');
 const dns = require('dns');
@@ -50,6 +51,27 @@ app.post('/wave-hello', async (req, res) => {
     // write
     fs.writeFileSync(filenameLog, JSON.stringify(log, null, 2));
     fs.writeFileSync(filenameLogUnique, JSON.stringify(logUnique, null, 2))
+})
+
+app.post('/game', (req, res) => {
+    // load database into memory
+    let topScore = JSON.parse(fs.readFileSync(gameScoreboard));
+
+    if (req.body.score > topScore.score) {
+        // write
+        fs.writeFileSync(gameScoreboard, JSON.stringify(req.body, null, 2));
+        res.send( `new high score 👍` );
+    }
+
+    // send response
+    res.send( `not high enough 👎` );
+})
+
+app.get('/game', (req, res) => {
+    const topScore = JSON.parse(fs.readFileSync(gameScoreboard));
+
+    // send response
+    res.send( `high score: ${topScore.score}` );
 })
 
 app.get('/wave-hello', (req, res) => {
