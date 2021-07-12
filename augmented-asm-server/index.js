@@ -8,7 +8,7 @@ const dns = require('dns');
 const fetch = require('node-fetch');
 const app = express();
 const PORT = 8080;
-const CURRENT_VERSION = 1.6;
+const CURRENT_VERSION = 1.60;
 const USER_AGENT_API_URL = "https://api.whatismybrowser.com/api/v2/user_agent_parse";
 const USER_AGENT_API_KEY = require('./api_key');
 

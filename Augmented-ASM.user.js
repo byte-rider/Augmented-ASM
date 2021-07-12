@@ -77,7 +77,7 @@ Variables:
 
 // debugger;
 
-const AASMVERSION = "1.6";
+const AASMVERSION = "1.60";
 
 (function () {
     'use strict';
