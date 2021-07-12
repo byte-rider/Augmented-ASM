@@ -1197,6 +1197,8 @@ const AASMVERSION = "1.6";
         gameIsVisible = ~gameIsVisible;
         if (gameIsVisible) {
             startGame();
+            document.querySelector("#aasm-controls #btn-game").blur();
+            canvas.focus();
         }
         
         if (!gameIsVisible) {
