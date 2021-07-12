@@ -133,40 +133,7 @@ const AASMVERSION = "1.6";
       <div class="aasm-flex-item">
         <button id="btn-show" class="aasm-button">show</button>
       </div>
-    </div>
-
-    <style>
-    #gameboard {
-        display: none;
-    }
-    
-    #score {
-        position: fixed;
-        color: white;
-        margin-top: 0.5rem;
-        margin-left: 0.5rem;
-        user-select: none;
-    }
-    
-    #game-over-modal {
-        position: relative;
-        display: none;
-    }
-    #game-over-modal div,
-    #game-over-modal h1,
-    #game-over-modal p {
-        margin: 0;
-    }
-    
-    #game-over-modal div {
-        background-color: white;
-        text-align: center;
-        margin: 0 0 0 0;
-        width: 30rem;
-        padding: 2rem;
-        border-radius: 30% 5%;
-    }
-    </style>`
+    </div>`
     /*
        ___  __  __
       / __\/ _\/ _\
@@ -1201,7 +1168,6 @@ const AASMVERSION = "1.6";
     }
     
     const killGame = () => {
-        gameOver();
         hideGameBoard();
         gameIsVisible = false;
     }

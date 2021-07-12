@@ -1,6 +1,7 @@
 const filenameLog = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log.json";
 const filenameLogUnique = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log-unique.json";
 const gameScoreboard = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\game-scoreboard.json";
+const gameLog = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\game-log.json";
 const express = require('express');
 const fs = require('fs');
 const dns = require('dns');
@@ -32,7 +33,7 @@ app.post('/wave-hello', async (req, res) => {
     
     // perform async functions
     const hostname = reverse_DNS_lookup(ip);
-    const software = parse_user_agent(req.body.userstring);
+    const software = parse_user_agent(req.body.userAgent);
     const finished = await Promise.all([hostname, software]);
     
     // append data to incoming json body
@@ -40,7 +41,7 @@ app.post('/wave-hello', async (req, res) => {
     req.body.software = finished[1];
 
     // remove the userAgent string
-    delete req.body['userstring'];
+    delete req.body['userAgent'];
 
     // add to normal log and the unique log if it's a new user
     log.users.push(req.body);
@@ -54,15 +55,20 @@ app.post('/wave-hello', async (req, res) => {
 })
 
 app.post('/game', (req, res) => {
-    // load database into memory
-    let topScore = JSON.parse(fs.readFileSync(gameScoreboard));
+    // load databases into memory
+    const topScore = JSON.parse(fs.readFileSync(gameScoreboard));
+    const log = JSON.parse(fs.readFileSync(gameLog));
 
+    // log this instance of game use:
+    log.game.push(req.body);
+    fs.writeFileSync(gameLog, JSON.stringify(log, null, 2));
+
+    // potentially write a new high score
     if (req.body.score > topScore.score) {
-        // write
         fs.writeFileSync(gameScoreboard, JSON.stringify(req.body, null, 2));
     }
 
-    // send response
+    // send highscore as response
     res.send( fs.readFileSync(gameScoreboard) );
 })
 
