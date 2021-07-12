@@ -948,7 +948,7 @@ const AASMVERSION = "1.6";
     }
     // KNOBS TO TWIDDLE:
     const PLAYER_SIZE = 20
-    const ENEMY_VELOCITY_START = 1.5;
+    const ENEMY_VELOCITY_START = 2;
     const ENEMY_SIZE_MIN = 20;
     const ENEMY_SIZE_MAX = 60;
     const BULLET_VELOCITY = 10;
