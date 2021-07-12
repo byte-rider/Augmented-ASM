@@ -1029,10 +1029,14 @@ const AASMVERSION = "1.6";
         document.querySelector("#gameboard").style.display = "none";
     }
 
-    const gameOver = () => {
-        gameIsOver = true;
+    const unloadGame = () => {
         cancelAnimationFrame(currentFrame);
         clearInterval(enemiesIntervalObject);
+    }
+
+    const gameOver = () => {
+        gameIsOver = true;
+        unloadGame();
         process_score();
         showGameOverModal();
     }
@@ -1168,6 +1172,7 @@ const AASMVERSION = "1.6";
     }
     
     const killGame = () => {
+        unloadGame();
         hideGameBoard();
         gameIsVisible = false;
     }
