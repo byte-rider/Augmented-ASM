@@ -79,6 +79,10 @@
   display: none;
 }
 
+#gameboard canvas {
+  cursor: crosshair;
+}
+
 #score {
   position: fixed;
   color: white;
@@ -90,6 +94,7 @@
 #game-over-modal {
   position: relative;
   display: none;
+  cursor: pointer;
 }
 #game-over-modal div,
 #game-over-modal h1,
