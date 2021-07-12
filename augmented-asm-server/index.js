@@ -60,11 +60,10 @@ app.post('/game', (req, res) => {
     if (req.body.score > topScore.score) {
         // write
         fs.writeFileSync(gameScoreboard, JSON.stringify(req.body, null, 2));
-        res.send( `new high score 👍` );
     }
 
     // send response
-    res.send( `not high enough 👎` );
+    res.send( fs.readFileSync(gameScoreboard) );
 })
 
 app.get('/game', (req, res) => {

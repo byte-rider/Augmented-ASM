@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.52
+// @version      1.6
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -75,9 +75,9 @@ Variables:
     const myVariable    // YES - variable will have block-level scope
 */
 
-debugger;
+// debugger;
 
-const AASMVERSION = "1.52";
+const AASMVERSION = "1.6";
 
 (function () {
     'use strict';
@@ -99,6 +99,7 @@ const AASMVERSION = "1.52";
         <input id="colour-picker" type="color" value="#29002E">
         <button id="btn-default" class="aasm-button">default</button>
         <button id="btn-about" class="aasm-button">about</button>
+        <button id="btn-game" class="aasm-button">🚀</button>
         <button id="btn-update" class="aasm-button">update</button>
       </div>
       <div class="aasm-flex-item">
@@ -114,14 +115,58 @@ const AASMVERSION = "1.52";
         <div class="slider-label">description</div>
         <div class="aasm-watermark">Augmented-ASM v${AASMVERSION}</div>
       </div>
+      <div class="aasm-flex-item">
+        <div id="gameboard" class="animate__animated animate__zoomIn">
+            <div id="score">0</div>
+            <canvas id="game"></canvas>
+            <div id="game-over-modal">
+                <div class="animate__animated animate__flipInX">
+                    <h1>GAME OVER</h1>
+                    <p>Your Score: <span id="yourscore"></span></p>
+                    <p>High Score: <span id="highscore"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
     <div id="aasm-controls-2">
       <div class="aasm-flex-item">
         <button id="btn-show" class="aasm-button">show</button>
       </div>
     </div>
-    `;
 
+    <style>
+    #gameboard {
+        display: none;
+    }
+    
+    #score {
+        position: fixed;
+        color: white;
+        margin-top: 0.5rem;
+        margin-left: 0.5rem;
+        user-select: none;
+    }
+    
+    #game-over-modal {
+        position: relative;
+        display: none;
+    }
+    #game-over-modal div,
+    #game-over-modal h1,
+    #game-over-modal p {
+        margin: 0;
+    }
+    
+    #game-over-modal div {
+        background-color: white;
+        text-align: center;
+        margin: 0 0 0 0;
+        width: 30rem;
+        padding: 2rem;
+        border-radius: 30% 5%;
+    }
+    </style>`
     /*
        ___  __  __
       / __\/ _\/ _\
@@ -843,9 +888,354 @@ const AASMVERSION = "1.52";
     /*----------------------------------
     ||       GAME
     ---------------------------------------------------------*/
-    document.querySelector(".aasm-watermark").addEventListener("click", () => {
-        
+    class Player {
+        constructor(x, y, radius, colour) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.colour = colour;
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, this.radius, 0, 360);
+            ctx.fillStyle = this.colour;
+            ctx.fill();
+        }
     }
+
+    class Bullet {
+        constructor(x, y, radius, colour, velocity) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.colour = colour;
+            this.velocity = velocity;
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, 360);
+            ctx.fillStyle = this.colour;
+            ctx.fill();
+        }
+
+        update() {
+            this.draw();
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+        }
+    }
+
+    class Enemy {
+        constructor(x, y, radius, colour, velocity) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.colour = colour;
+            this.velocity = velocity;
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, 360);
+            ctx.fillStyle = this.colour;
+            ctx.fill();
+        }
+
+        update() {
+            this.draw();
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+        }
+    }
+
+    class Fragment {
+        constructor(x, y, radius, colour, velocity) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.colour = colour;
+            this.velocity = velocity;
+            this.alpha = 1;
+        }
+
+        draw() {
+            ctx.save()
+            ctx.globalAlpha = this.alpha;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, 360);
+            ctx.fillStyle = this.colour;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        update() {
+            this.draw();
+            this.velocity.x *= 0.95; // *= friction value
+            this.velocity.y *= 0.95; // *= friction value
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+            this.alpha -= FRAGMENT_FADE_OUT_SPEED * 0.01;
+        }
+    }
+    // KNOBS TO TWIDDLE:
+    const PLAYER_SIZE = 20
+    const ENEMY_VELOCITY_START = 1.5;
+    const ENEMY_SIZE_MIN = 20;
+    const ENEMY_SIZE_MAX = 60;
+    const BULLET_VELOCITY = 10;
+    const BULLET_SIZE = 7;
+    const EXPLOSION_FRAGMENTS = 15;
+    const FRAGMENT_MAX_SIZE = 5;
+    const FRAGMENT_FADE_OUT_SPEED = 3; // 1 - 10
+    const FRAGMENT_VELOCITY = 30;
+
+    // ACTIVE GAME STUFF
+    const canvas = document.querySelector('#game');
+    const ctx = canvas.getContext('2d');
+    let player;
+    let bullets = [];
+    let fragments = [];
+    let enemies = [];
+    let score;
+    const scoreboard = document.querySelector("#score");
+    const gameOverModal = document.querySelector('#game-over-modal');
+    const mouse = {
+        x: null,
+        y: null
+    };
+    let currentFrame;
+    let enemiesIntervalObject;
+    let gameIsPaused = false;
+    let gameIsOver = false;
+
+    const process_score = () => {
+        const APIURL = "http://samsara-nc:8080/game";
+        const payload = {
+            'user': document.getElementById("OFFICER_NAME").value,
+            'score': score,
+            'time': Date.now()
+        };
+        
+        // adjust game over modal to include current score
+        document.querySelector('#yourscore').innerHTML = `${payload.score} ${payload.user}`;
+        document.querySelector('#highscore').innerHTML = `(contacting samsara-nc)`;
+
+        // submit score to server and get highscore as response
+        GM_xmlhttpRequest({
+            method: 'POST',
+            url: APIURL,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            data: JSON.stringify(payload),
+            
+            onload: function (response) { // retreiving high score from server
+                const responseJson = JSON.parse(response.responseText);
+                document.querySelector('#highscore').innerHTML = `${responseJson.score} ${responseJson.user}`;
+            }
+        });
+    }
+    
+    // track mouse position
+    const _grab_mouse_position = (event) => {
+        mouse.x = event.offsetX;
+        mouse.y = event.offsetY;
+    }
+    document.addEventListener('mousemove', _grab_mouse_position);
+
+    const showGameOverModal = () => {
+        gameOverModal.style.display = 'block';
+        gameOverModal.style.left = canvas.width/2 - document.querySelector('#game-over-modal div').offsetWidth/2;
+        gameOverModal.style.bottom = canvas.height/2 + gameOverModal.offsetHeight/2;
+    }
+
+    const hideGameOverModal = () => {
+        gameOverModal.style.display = 'none';
+    }
+
+    const showGameBoard = () => {
+        document.querySelector("#gameboard").style.display = "block";
+    }
+    const hideGameBoard = () => {
+        document.querySelector("#gameboard").style.display = "none";
+    }
+
+    const gameOver = () => {
+        gameIsOver = true;
+        cancelAnimationFrame(currentFrame);
+        clearInterval(enemiesIntervalObject);
+        process_score();
+        showGameOverModal();
+    }
+
+    // spawn enemies
+    const spawnEnemies = () => {
+        enemiesIntervalObject = setInterval(() => {
+            if (gameIsPaused) {
+                return;
+            }
+            const radius = Math.random() * (ENEMY_SIZE_MAX - ENEMY_SIZE_MIN) + ENEMY_SIZE_MIN;
+            let x;
+            let y;
+            if (Math.random() < 0.5) {
+                x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
+                y = Math.random() * canvas.height;
+            } else {
+                x = Math.random() * canvas.width;
+                y = Math.random() < 0.5 ? canvas.height - radius : canvas.height + radius;
+            }
+            const colour = `hsl(${Math.random() * 360}, 30%, 50%)`;
+            const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x); // angle to player
+            // get currect score and increase difficulty if required.
+
+            const velocity = {
+                x: Math.cos(angle) * ENEMY_VELOCITY_START * (score / 1000 + 1),
+                y: Math.sin(angle) * ENEMY_VELOCITY_START * (score / 1000 + 1)
+            }
+            enemies.push(new Enemy(x, y, radius, colour, velocity));
+        }, 1000);
+    }
+
+    // spawn bullet
+    // event = keyup
+    document.addEventListener('keyup', event => {
+        if (event.key === 'Escape') {
+            gameOver();
+            return;
+        }
+        const angle = Math.atan2(mouse.y - canvas.height / 2, mouse.x - canvas.width / 2); // angle to mouse position
+        const velocity = {
+            x: Math.cos(angle) * BULLET_VELOCITY,
+            y: Math.sin(angle) * BULLET_VELOCITY
+        }
+        bullets.push(new Bullet(canvas.width / 2, canvas.height / 2, BULLET_SIZE, 'white', velocity));
+    })
+
+    // process
+    const processFrames = () => {
+        ctx.fillStyle = 'rgba(0,0,0, 0.2)'; // background
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // wipe screen from previous frame
+        currentFrame = requestAnimationFrame(processFrames); // processFrames next frame
+        player.draw();
+
+        // process bullets
+        bullets.forEach((bullet, index) => {
+            bullet.update();
+            // bullet leaves screen
+            if (bullet.x - bullet.radius < 0 ||
+                bullet.x - bullet.radius > canvas.width ||
+                bullet.y - bullet.radius < 0 ||
+                bullet.y - bullet.radius > canvas.height) {
+                setTimeout(() => {
+                    bullets.splice(index, 1);
+                }, 0)
+            }
+        });
+
+        // process enemies
+        enemies.forEach((enemy, enemyIndex) => {
+            enemy.update();
+            const distanceFromPlayer = Math.hypot(enemy.x - player.x, enemy.y - player.y) - enemy.radius - player.radius;
+            // we're hit
+            if (distanceFromPlayer <= 0) {
+                gameOver();
+                return;
+            }
+            bullets.forEach((bullet, bulletIndex) => {
+                const distance = Math.hypot(bullet.x - enemy.x, bullet.y - enemy.y) - enemy.radius - bullet.radius;
+                if (distance <= 0) { // bullet and enemy touch
+                    bullets.splice(bulletIndex, 1); // remove bullet
+                    score += 4;
+                    scoreboard.innerHTML = score;
+                    if (enemy.radius - 10 > ENEMY_SIZE_MIN) { // not dead so reduce size
+                        enemy.radius -= 10;
+                    } else { // enemy dead
+                        setTimeout(() => { // avoid flicker by sending to end of event loop
+                            for (let i = 0; i < EXPLOSION_FRAGMENTS; i++) {
+                                fragments.push(new Fragment(
+                                    enemy.x,
+                                    enemy.y,
+                                    Math.random() * FRAGMENT_MAX_SIZE,
+                                    enemy.colour, {
+                                        x: (Math.random() - 0.5) * Math.random() * FRAGMENT_VELOCITY,
+                                        y: (Math.random() - 0.5) * Math.random() * FRAGMENT_VELOCITY
+                                    }));
+                            }
+                            enemies.splice(enemyIndex, 1);
+                        }, 0)
+                    }
+                }
+            })
+        });
+
+        // process fragments
+        fragments.forEach((fragment, index) => {
+            if (fragment.alpha <= 0) {
+                fragments.splice(index, 1);
+            } else {
+                fragment.update();
+            }
+        })
+    }
+
+    const init = () => {
+        score = 0;
+        scoreboard.innerHTML = score;
+        bullets = [];
+        fragments = [];
+        enemies = [];
+        canvas.width = window.innerWidth * 0.8;
+        canvas.height = window.innerHeight * 0.8;
+        player = new Player(canvas.width / 2, canvas.height / 2, PLAYER_SIZE, 'white');
+        hideGameOverModal();
+    }
+    
+    const startGame = () => {
+        gameIsOver = false;
+        init();
+        spawnEnemies();
+        processFrames();
+        showGameBoard();
+    }
+    
+    const killGame = () => {
+        gameOver();
+        hideGameBoard();
+        gameIsVisible = false;
+    }
+
+    const _pauseGame = () => {
+        gameIsPaused = true;
+        cancelAnimationFrame(currentFrame);
+    }
+
+    const _resumeGame = () => {
+        gameIsPaused = false;
+        if (!gameIsOver) {
+            processFrames();
+        }
+    }
+
+    window.addEventListener('blur', _pauseGame);
+    window.addEventListener('focus', _resumeGame);
+
+    let gameIsVisible = false;
+    document.querySelector("#aasm-controls #btn-game").addEventListener("click", () => {
+        gameIsVisible = ~gameIsVisible;
+        if (gameIsVisible) {
+            startGame();
+        }
+        
+        if (!gameIsVisible) {
+            killGame();
+        }
+    });
+
+    document.querySelector("#game-over-modal").addEventListener("click", () => {
+        killGame();
+    });
 
     /*
              _           _       _     _             _   _
