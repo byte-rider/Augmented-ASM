@@ -73,10 +73,8 @@ app.post('/game', (req, res) => {
 })
 
 app.get('/game', (req, res) => {
-    const topScore = JSON.parse(fs.readFileSync(gameScoreboard));
-
     // send response
-    res.send( `high score: ${topScore.score}` );
+    res.send( fs.readFileSync(gameScoreboard) );
 })
 
 app.get('/wave-hello', (req, res) => {

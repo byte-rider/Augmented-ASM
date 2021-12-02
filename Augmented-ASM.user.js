@@ -28,7 +28,7 @@
     A series of Javascript functions that do stuff to the page.
 
     There are CSS files that get loaded into memory (see @resource declarations above) and
-    are inserted/removed into the dom at various times (for example there's a 'dark mode').
+    are inserted/removed into the dom at various times (like dark mode).
 
     There is a daemon which runs every 500 milliseconds. The daemon keeps watch of certain
     flags and either runs or doesn't run various functions. This is how something can be applied to a page
@@ -68,7 +68,7 @@ Functions:
     const something = function() {}   // YES - 'let' also fine.
 
 Variables:
-    camelCase always; local scope only; booleans to be verbed, eg: lightIsFlashing, flagIsUp, somethingIsTrue
+    camelCase always unless it's an actual CONSTANT; local scope only; booleans to be verbed, eg: lightIsFlashing, flagIsUp, somethingIsTrue
     myVariable          // NO - global scope - variable can overwrite some other 'myVaribale' on the global namespace
     var myVariable      // NO - function scope - variable can overwrite some other 'myVaribale' within entire function
     let myVariable      // YES - variable will have block-level scope
@@ -320,9 +320,9 @@ const AASMVERSION = "1.60";
     document.getElementById("dark-mode").remove(); // GM_addStyle() returns a <style> element, yes, but it also adds it to the page which we don't want yet
 
     /* Recursive function that takes a NodeList of frames, a callback function and a <style> element as parameters arguments.
-    It will crawl through the DOM, plucking out every iframe and sending its "document" property into the callback as an argument, along with the element parameter.
-    It'll be up to the callback function to manipulate the document with the element however it wants (for example: removing the element from the document)
-    If the first parameter is arguably 'window.top.frames' then it'll cover the entire dom, else 'window.frames' will only traverse from the current frame in focus (never used this way)
+    It will recusively traverse the DOM looking for iframes. Each iframe in the dom will have its "document" property used as an argument to the callback (as well as element parameter as second argument).
+    It'll be up to the callback function to manipulate the document with the second argument however it wants (eg: removing or adding a <style> do the document)
+    If the first parameter is arguably 'window.top.frames' then it'll traverse the entire dom, else 'window.frames' will only traverse from a current branch -the current frame in focus (never used this way)
     */
     const modify_all_documents_ = (frames, callback, element) => {
         // stop recursion if at leaf.

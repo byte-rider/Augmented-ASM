@@ -1,0 +1,11 @@
+node_modules/
+scratchpad/
+package-lock.json
+augmented-asm-server/daemon/
+augmented-asm-server/node_modules/
+augmented-asm-server/log.json
+augmented-asm-server/log-unique.json
+augmented-asm-server/scratchpad.js
+augmented-asm-server/package-lock.json
+augmented-asm-server/api_key.js
+augmented-asm-server/game-log.json
