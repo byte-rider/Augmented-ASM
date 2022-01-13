@@ -51,8 +51,16 @@
   margin: 0.25rem 0 0.25rem 1rem;
 }
 
-#aasm-controls .slider {
+#aasm-controls .slider,
+#aasm-controls .input-text {
   width: 27rem;
+}
+
+#aasm-controls .input-text {
+  border-radius: 5px;
+  border: 1px solid darkgrey;
+  background-color: lightgray;
+  height: 2rem;
 }
 
 #aasm-controls .slider-label {
