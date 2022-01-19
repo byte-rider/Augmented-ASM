@@ -1,11 +1,11 @@
+// const logFilePath = "/home/node/app/log.json";
 const logFilePath = "C:\\Users\\edw19b\\Dropbox\\dev\\augmented-asm\\augmented-asm-server\\log.json";
 const express = require('express');
 const fs = require('fs');
-const dns = require('dns');
 const fetch = require('node-fetch');
 const app = express();
 const PORT = 8080;
-const CURRENT_VERSION = 1.60;
+const CURRENT_VERSION = 1.70;
 const USER_AGENT_API_URL = "https://api.whatismybrowser.com/api/v2/user_agent_parse";
 const USER_AGENT_API_KEY = require('./api_key');
 const { stderr } = require('process');
@@ -13,28 +13,26 @@ const { response } = require('express');
 
 app.use( express.json() ); // load json middleware
 app.use('/static', express.static('./', {etag: false}) ); // load static to serve local files; second argument disables client-side caching
-
 app.listen(PORT, () => console.log(`running on port ${PORT}`))
 
-// this function writes to main log
 app.post('/wave-hello', async (req, res) => {
     try {
         // send client the latest version number so it'll know if an update is available
         res.send( { version: CURRENT_VERSION } );
-
+        
         // load database into memory
         let log = JSON.parse(fs.readFileSync(logFilePath));
         
         if (!log.hasOwnProperty(req.body.user)) { // first time user
-            log[req.body.user] = {"count": 0, "gameCount": 0}
+            log[req.body.user] = {"count": 0, "gameCount": 0, "gameTopScore": 0}
         }
-
+        
         log[req.body.user].lastseen = req.body.time;
         log[req.body.user].version = req.body.version;
         log[req.body.user].scriptengine = req.body.scriptengine;
         log[req.body.user].software = await parse_user_agent(req.body.userAgent);
         log[req.body.user].count = log[req.body.user].count + 1;
-
+        
         // write
         fs.writeFileSync(logFilePath, JSON.stringify(log, null, 2))
     } catch (error) {
@@ -42,11 +40,15 @@ app.post('/wave-hello', async (req, res) => {
     }
 })
 
+app.get('/wave-hello', (req, res) => {
+    res.send( `I commend your exploration 🍻` );
+})
+
 app.post('/game', (req, res) => {
     // log that game was played
     const log = JSON.parse(fs.readFileSync(logFilePath));
     log[req.body.user].gameCount = log[req.body.user].gameCount + 1;
-    (log[req.body.user].gameTopScore < req.body.score) ? log[req.body.user].gameTopScore = req.body.score : 
+    (log[req.body.user].gameTopScore < req.body.score) ? log[req.body.user].gameTopScore = req.body.score : null;
     fs.writeFileSync(logFilePath, JSON.stringify(log, null, 2));
     
     // respond with the top score.
@@ -61,11 +63,15 @@ app.post('/game', (req, res) => {
 })
 
 app.get('/game', (req, res) => {
-    res.send( fs.readFileSync(gameHighScore) );
-})
-
-app.get('/wave-hello', (req, res) => {
-    res.send( `I commend your exploration 🍻` );
+    const log = JSON.parse(fs.readFileSync(logFilePath));
+    let response = {"user": "initialised value", "score": -1};
+    for (const [key, value] of Object.entries(log)) {
+        if (response.score < log[key].gameTopScore) {
+            response.user = key;
+            response.score = log[key].gameTopScore;
+        };
+    };
+    res.send( response );
 })
 
 app.get('/', (req, res) => {
@@ -103,7 +109,7 @@ function parse_user_agent(userAgent) {
             software = json.parse.simple_software_string;
             resolve(software);
         })
-        .catch(error => console.error("😢 failed to parse userAgent string because:", error));
+        .catch(error => console.error("😢 failed to parse userAgent string:", error));
     })
     
 }

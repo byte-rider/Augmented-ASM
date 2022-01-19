@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Augmented-ASM
 // @namespace    augmented-asm
-// @version      1.60
+// @version      1.70
 // @description  modify cosmetic elements of ASM to be more productive
 // @author       George (edw19b)
 // @match        https://servicecentre.csiro.au/Production/core.aspx
@@ -11,7 +11,7 @@
 // @resource     AASM_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/aasm.css
 // @resource     READABILITY_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/readability-mode.css
 // @resource     DARK_MODE_CSS https://raw.githubusercontent.com/george-edwards-code/Augmented-ASM/master/css/dark-mode.css
-// @connect      samsara-nc
+// @connect      aasm.it.csiro.au
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
@@ -68,7 +68,7 @@ Functions:
     const something = function() {}   // YES - 'let' also fine.
 
 Variables:
-    camelCase always unless it's an actual CONSTANT; local scope only; booleans to be verbed, eg: lightIsFlashing, flagIsUp, somethingIsTrue
+    camelCase always except for CONSTANTS; local scope only; booleans to be verbed, eg: lightIsFlashing, flagIsUp, somethingIsTrue
     myVariable          // NO - global scope - variable can overwrite some other 'myVaribale' on the global namespace
     var myVariable      // NO - function scope - variable can overwrite some other 'myVaribale' within entire function
     let myVariable      // YES - variable will have block-level scope
@@ -77,7 +77,8 @@ Variables:
 
 // debugger;
 
-const AASMVERSION = "1.60";
+const AASMVERSION = "1.70";
+const APIURL = "//aasm.it.csiro.au";
 
 (function () {
     'use strict';
@@ -102,6 +103,10 @@ const AASMVERSION = "1.60";
         <button id="btn-game" class="aasm-button">🚀</button>
         <button id="btn-update" class="aasm-button">update</button>
       </div>
+      <div class="aasm-flex-item" style="margin: 1rem 0 0 1rem;">
+        <input id="input-text-esc" class="input-text" type="text" maxlength="7" minlength="7" placeholder="Service Tag: FL8VL13">
+        <div id="esc-label" class="slider-label">express service code</div>
+      </div>
       <div class="aasm-flex-item">
         <input id="slider-contents" class="slider" type="range" min="1.0" max="2.0" step="0.05">
         <div class="slider-label">tab-contents</div>
@@ -124,6 +129,9 @@ const AASMVERSION = "1.60";
                     <h1>GAME OVER</h1>
                     <p>Your Score: <span id="yourscore"></span></p>
                     <p>High Score: <span id="highscore"></span></p>
+                    </br>
+                    <p>aim with mouse</p>
+                    <p>any key to shoot</p>
                 </div>
             </div>
         </div>
@@ -153,6 +161,28 @@ const AASMVERSION = "1.60";
     animate.rel = 'stylesheet';
     animate.href = "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css";
     document.head.appendChild(animate);
+
+    /*
+     _            _     _               
+    | |_ _____  _| |_  | |__   _____  __
+    | __/ _ \ \/ / __| | '_ \ / _ \ \/ /
+    | ||  __/>  <| |_  | |_) | (_) >  < 
+     \__\___/_/\_\\__| |_.__/ \___/_/\_\
+    
+    */
+
+    // Express Service Code input box
+    const serviceTag = document.querySelector("#aasm-controls #input-text-esc");
+    const _convert_to_express_service_code = () => {
+        const esc = parseInt(serviceTag.value, 36);
+        const escLabel = document.querySelector("#esc-label");
+
+        (serviceTag.value.length < 7) ? escLabel.innerHTML = "express service code" : escLabel.innerHTML = esc;
+    };
+
+    serviceTag.addEventListener("input", _convert_to_express_service_code);
+
+
 
     /*
          _ _     _
@@ -978,7 +1008,6 @@ const AASMVERSION = "1.60";
     let gameIsOver = false;
 
     const process_score = () => {
-        const APIURL = "http://samsara-nc:8080/game";
         const payload = {
             'user': document.getElementById("OFFICER_NAME").value,
             'score': score,
@@ -987,12 +1016,12 @@ const AASMVERSION = "1.60";
         
         // adjust game over modal to include current score
         document.querySelector('#yourscore').innerHTML = `${payload.score} ${payload.user}`;
-        document.querySelector('#highscore').innerHTML = `(contacting samsara-nc)`;
+        document.querySelector('#highscore').innerHTML = `(contacting ${APIURL})`;
 
         // submit score to server and get highscore as response
         GM_xmlhttpRequest({
             method: 'POST',
-            url: APIURL,
+            url: `${APIURL}/game`,
             headers: {
                 "Content-Type": "application/json"
             },
@@ -1224,8 +1253,6 @@ const AASMVERSION = "1.60";
     ---------------------------------------------------------*/
     // Sends timestamp of usage to RESTful API server
     const log_usage = () => {
-        const APIURL = "http://samsara-nc:8080/wave-hello";
-
         // Identify ScriptEngine
         let scriptEngine;
         if (typeof GM_info === "undefined") {
@@ -1245,7 +1272,7 @@ const AASMVERSION = "1.60";
 
         GM_xmlhttpRequest({
             method: 'POST',
-            url: APIURL,
+            url: `${APIURL}/wave-hello`,
             headers: {
                 "Content-Type": "application/json"
             },
